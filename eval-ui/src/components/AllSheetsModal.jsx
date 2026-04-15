@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import client from '../api/client';
 
 const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
 
-function ResultsPanel({ sheet, test }) {
+function ResultsPanel({ sheet, test, activeField, onFieldClick }) {
     const [editMode, setEditMode] = useState(false);
     const [editVal, setEditVal] = useState('');
     const [saving, setSaving] = useState(false);
@@ -81,23 +81,36 @@ function ResultsPanel({ sheet, test }) {
                     {resultEntries.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                             {resultEntries.map(([k, v]) => (
-                                <div key={k} style={{
-                                    display: 'flex',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    padding: '7px 12px',
-                                    borderRadius: 6,
-                                    background: 'var(--bg-input)',
-                                    fontSize: 13
-                                }}>
-                                    <span style={{ color: 'var(--text-secondary)', fontWeight: 500 }}>{k}</span>
+                                <div 
+                                    key={k} 
+                                    onClick={() => onFieldClick?.(k)}
+                                    style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '7px 12px',
+                                        borderRadius: 6,
+                                        background: activeField === k ? 'var(--accent-dim)' : 'var(--bg-input)',
+                                        border: `1px solid ${activeField === k ? 'var(--accent)' : 'transparent'}`,
+                                        fontSize: 13,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.1s'
+                                    }}
+                                >
+                                    <span style={{ 
+                                        color: activeField === k ? 'var(--text-primary)' : 'var(--text-secondary)', 
+                                        fontWeight: activeField === k ? 700 : 500 
+                                    }}>
+                                        {k}
+                                    </span>
                                     <span style={{
                                         fontWeight: 700,
                                         color: 'var(--text-primary)',
-                                        background: 'var(--accent-dim)',
+                                        background: activeField === k ? 'var(--accent)' : 'var(--accent-dim)',
                                         padding: '2px 8px',
                                         borderRadius: 4,
-                                        fontSize: 12
+                                        fontSize: 12,
+                                        transition: 'all 0.1s'
                                     }}>{(typeof v === 'object' && v !== null && v.value !== undefined) ? String(v.value) : String(v)}</span>
                                 </div>
                             ))}
@@ -187,6 +200,11 @@ export default function AllSheetsModal({ test, onClose }) {
     const [lightbox, setLightbox] = useState(false);
     const [deletingSheet, setDeletingSheet] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    
+    // Highlighting state
+    const [highlightedField, setHighlightedField] = useState(null);
+    const [imgMetrics, setImgMetrics] = useState(null); // { naturalWidth, naturalHeight, clientWidth, clientHeight }
+    const imgRef = useRef(null);
 
     useEffect(() => {
         const fetch = async () => {
@@ -206,7 +224,19 @@ export default function AllSheetsModal({ test, onClose }) {
     useEffect(() => {
         setImgError(false);
         setConfirmDelete(false);
+        setHighlightedField(null);
+        setImgMetrics(null);
     }, [selected]);
+
+    const handleImageLoad = (e) => {
+        const img = e.target;
+        setImgMetrics({
+            naturalWidth: img.naturalWidth,
+            naturalHeight: img.naturalHeight,
+            clientWidth: img.clientWidth,
+            clientHeight: img.clientHeight
+        });
+    };
 
     const handleDeleteSheet = async () => {
         if (!selected) return;
@@ -394,7 +424,15 @@ export default function AllSheetsModal({ test, onClose }) {
                             flexShrink: 0
                         }}>
                             {selected
-                                ? <ResultsPanel key={selected._id} sheet={selected} test={test} />
+                                ? (
+                                    <ResultsPanel 
+                                        key={selected._id} 
+                                        sheet={selected} 
+                                        test={test} 
+                                        activeField={highlightedField}
+                                        onFieldClick={(k) => setHighlightedField(k === highlightedField ? null : k)}
+                                    />
+                                )
                                 : (
                                     <div className="empty-state">
                                         <div className="empty-icon">👈</div>
@@ -473,21 +511,56 @@ export default function AllSheetsModal({ test, onClose }) {
                                                 <div className="empty-desc">The image file could not be loaded from disk.</div>
                                             </div>
                                         ) : (
-                                            <img
-                                                key={selected._id}
-                                                src={imgSrc}
-                                                alt={selected.sheetName}
-                                                onError={() => setImgError(true)}
-                                                style={{
-                                                    maxWidth: '100%',
-                                                    maxHeight: '100%',
-                                                    objectFit: 'contain',
-                                                    borderRadius: 8,
-                                                    boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
-                                                    cursor: 'zoom-in'
-                                                }}
-                                                onClick={() => setLightbox(true)}
-                                            />
+                                            <div style={{ position: 'relative', display: 'inline-block', maxWidth: '100%', maxHeight: '100%' }}>
+                                                <img
+                                                    key={selected._id}
+                                                    ref={imgRef}
+                                                    src={imgSrc}
+                                                    alt={selected.sheetName}
+                                                    onLoad={handleImageLoad}
+                                                    onError={() => setImgError(true)}
+                                                    style={{
+                                                        maxWidth: '100%',
+                                                        maxHeight: '100%',
+                                                        display: 'block',
+                                                        objectFit: 'contain',
+                                                        borderRadius: 8,
+                                                        boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                                                        cursor: 'zoom-in'
+                                                    }}
+                                                    onClick={() => setLightbox(true)}
+                                                />
+                                                {/* Highlight Box */}
+                                                {selected && highlightedField && selected.result?.[highlightedField]?.bounds && imgMetrics && (
+                                                    (() => {
+                                                        const b = selected.result[highlightedField].bounds;
+                                                        const { naturalWidth, naturalHeight, clientWidth, clientHeight } = imgMetrics;
+                                                        
+                                                        // Scaling factors
+                                                        const sx = clientWidth / naturalWidth;
+                                                        const sy = clientHeight / naturalHeight;
+                                                        
+                                                        return (
+                                                            <div 
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    left: b.x * sx,
+                                                                    top: b.y * sy,
+                                                                    width: b.width * sx,
+                                                                    height: b.height * sy,
+                                                                    border: '3px solid #ff4757',
+                                                                    background: 'rgba(255, 71, 87, 0.2)',
+                                                                    boxShadow: '0 0 15px rgba(255, 71, 87, 0.5)',
+                                                                    borderRadius: '2px',
+                                                                    pointerEvents: 'none',
+                                                                    zIndex: 10,
+                                                                    animation: 'pulseHighlight 1.5s infinite ease-in-out'
+                                                                }}
+                                                            />
+                                                        );
+                                                    })()
+                                                )}
+                                            </div>
                                         )}
                                     </div>
                                 </>
