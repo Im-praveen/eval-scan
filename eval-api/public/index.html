@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZipScan | Premium Processing API</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.1) 0, transparent 50%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            perspective: 1000px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, #818cf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .upload-area:hover, .upload-area.dragging {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+            transform: scale(1.01);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+        }
+
+        .status-container {
+            margin-top: 2rem;
+            display: none;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .badge-processing { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+        .badge-success { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .id-display {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .result-viewer {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 1.5rem;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            display: none;
+        }
+
+        pre {
+            color: #e2e8f0;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .loader {
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Utility classes */
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>ZipScan</h1>
+            <p class="subtitle">Secure ZIP processing with instant API feedback.</p>
+
+            <div id="upload-zone" class="upload-area">
+                <span class="upload-icon">📦</span>
+                <p>Drag & drop your zip file here or <span style="color: var(--primary)">browse</span></p>
+                <input type="file" id="file-input" accept=".zip">
+            </div>
+
+            <div id="status-panel" class="status-container">
+                <div class="status-header">
+                    <h3>Processing Job</h3>
+                    <span id="job-badge" class="badge badge-processing">Executing</span>
+                </div>
+                
+                <div class="id-display">
+                    <span id="upload-id-text">ID: --</span>
+                    <button class="btn" style="padding: 0.4rem 0.8rem; margin: 0; font-size: 0.8rem;" onclick="copyId()">Copy</button>
+                </div>
+
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+
+                <div id="result-box" class="result-viewer">
+                    <pre id="json-output"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadZone = document.getElementById('upload-zone');
+        const fileInput = document.getElementById('file-input');
+        const statusPanel = document.getElementById('status-panel');
+        const uploadIdText = document.getElementById('upload-id-text');
+        const progressFill = document.getElementById('progress-fill');
+        const jsonOutput = document.getElementById('json-output');
+        const resultBox = document.getElementById('result-box');
+        const jobBadge = document.getElementById('job-badge');
+
+        let currentUploadId = null;
+        let pollInterval = null;
+
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragging');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragging');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragging');
+            if (e.dataTransfer.files.length > 0) {
+                handleFileUpload(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        async function handleFileUpload(file) {
+            if (!file.name.endsWith('.zip')) {
+                alert('Please upload a ZIP file.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // Reset UI
+            statusPanel.style.display = 'block';
+            uploadZone.style.display = 'none';
+            progressFill.style.width = '20%';
+            jobBadge.className = 'badge badge-processing';
+            jobBadge.innerText = 'Uploading...';
+            resultBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                
+                if (data.uploadID) {
+                    currentUploadId = data.uploadID;
+                    uploadIdText.innerText = `ID: ${currentUploadId}`;
+                    jobBadge.innerText = 'Processing...';
+                    progressFill.style.width = '50%';
+                    startPolling();
+                } else {
+                    throw new Error('Upload failed');
+                }
+            } catch (err) {
+                alert('Upload Error: ' + err.message);
+                uploadZone.style.display = 'block';
+                statusPanel.style.display = 'none';
+            }
+        }
+
+        function startPolling() {
+            if (pollInterval) clearInterval(pollInterval);
+            
+            pollInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/result/${currentUploadId}`);
+                    const text = await response.text();
+
+                    if (text !== 'Result not available') {
+                        clearInterval(pollInterval);
+                        showResult(text);
+                    }
+                } catch (err) {
+                    console.error('Polling error:', err);
+                }
+            }, 2000);
+        }
+
+        function showResult(data) {
+            jobBadge.className = 'badge badge-success';
+            jobBadge.innerText = 'Completed';
+            progressFill.style.width = '100%';
+            
+            resultBox.style.display = 'block';
+            try {
+                const parsed = JSON.parse(data);
+                jsonOutput.innerText = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                jsonOutput.innerText = data;
+            }
+        }
+
+        function copyId() {
+            if (currentUploadId) {
+                navigator.clipboard.writeText(currentUploadId);
+                alert('ID copied to clipboard');
+            }
+        }
+    </script>
+</body>
+</html>

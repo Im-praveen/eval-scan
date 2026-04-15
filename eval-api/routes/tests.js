@@ -1,0 +1,135 @@
+const express = require('express');
+const { body, validationResult } = require('express-validator');
+const Test = require('../models/Test');
+const SheetRecord = require('../models/SheetRecord');
+const { protect } = require('../middleware/auth');
+
+const router = express.Router();
+
+// GET /api/tests – list all tests
+router.get('/', protect, async (req, res) => {
+    try {
+        const tests = await Test.find()
+            .populate('createdBy', 'name email')
+            .sort({ createdAt: -1 });
+        res.json(tests);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// GET /api/tests/:id – get single test
+router.get('/:id', protect, async (req, res) => {
+    try {
+        const test = await Test.findById(req.params.id).populate('createdBy', 'name email');
+        if (!test) return res.status(404).json({ error: 'Test not found' });
+        res.json(test);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// POST /api/tests – create test
+router.post('/', protect, [
+    body('name').notEmpty().withMessage('Test name is required'),
+    body('conductDate')
+        .notEmpty().withMessage('Conduct date is required')
+        .isISO8601().withMessage('Invalid date format')
+        .custom((value) => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const date = new Date(value);
+            if (date < today) {
+                throw new Error('Conduct date must be today or a future date');
+            }
+            return true;
+        })
+], async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+        const { name, conductDate } = req.body;
+        const test = await Test.create({
+            name,
+            conductDate: new Date(conductDate),
+            createdBy: req.user._id
+        });
+        res.status(201).json(test);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// PATCH /api/tests/:id – update test status
+router.patch('/:id', protect, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const test = await Test.findByIdAndUpdate(
+            req.params.id,
+            { status },
+            { new: true }
+        );
+        if (!test) return res.status(404).json({ error: 'Test not found' });
+        res.json(test);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+// GET /api/tests/:id/export – export final extracted result json
+router.get('/:id/export', protect, async (req, res) => {
+    try {
+        const test = await Test.findById(req.params.id);
+        if (!test) return res.status(404).json({ error: 'Test not found' });
+
+        const sheets = await SheetRecord.find({ testID: req.params.id });
+
+        const surveys = [];
+
+        for (const sheet of sheets) {
+            // Priority to updated_result if reviewed, else fallback to raw result
+            const rawResult = sheet.result || {};
+            const finalResult = Object.keys(sheet.updated_result || {}).length > 0 
+                ? sheet.updated_result 
+                : rawResult;
+            
+            const survey = { responses: [] };
+
+            for (const [key, valObj] of Object.entries(finalResult)) {
+                const value = (typeof valObj === 'object' && valObj !== null && valObj.value !== undefined) 
+                    ? String(valObj.value) 
+                    : String(valObj);
+                
+                const qMatch = key.match(/^q(?:uestion)?\s*(\d+)$/i);
+                
+                if (qMatch) {
+                    survey.responses.push({
+                        questionNo: parseInt(qMatch[1], 10),
+                        answer: value
+                    });
+                } else if (!['errorMessage', 'image', 'status', 'Side1-image', 'Side1-question'].some(k => key.toLowerCase().includes(k.toLowerCase()))) {
+                    // Map common OMR fields to user requested names
+                    let finalKey = key;
+                    if (key.toLowerCase() === 'rollno' || key.toLowerCase() === 'roll no') finalKey = 'StudentCode';
+                    if (key.toLowerCase() === 'class') finalKey = 'Grade';
+                    
+                    survey[finalKey] = value;
+                }
+            }
+            
+            survey.responses.sort((a, b) => a.questionNo - b.questionNo);
+            surveys.push(survey);
+        }
+
+        res.json({ surveys });
+    } catch (err) {
+        console.error('Export Error:', err);
+        res.status(500).json({ error: 'Server error during export' });
+    }
+});
+
+module.exports = router;
