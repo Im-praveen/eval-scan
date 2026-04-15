@@ -4,6 +4,7 @@ import client, { API_BASE } from '../api/client';
 import CreateTestModal from '../components/CreateTestModal';
 import UploadZipModal from '../components/UploadZipModal';
 import AllSheetsModal from '../components/AllSheetsModal';
+import PublicLinkModal from '../components/PublicLinkModal';
 
 const formatDate = (d) => d
     ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -21,6 +22,7 @@ export default function TestManagementPage() {
     const [showCreate, setShowCreate] = useState(false);
     const [uploadTarget, setUploadTarget] = useState(null);   // test object for upload modal
     const [sheetsTarget, setSheetsTarget] = useState(null);   // test object for all-sheets modal
+    const [linkTarget, setLinkTarget] = useState(null);       // test object for public link modal
     const [expandedTest, setExpandedTest] = useState(null);
     const [batches, setBatches] = useState({});
     const [batchLoading, setBatchLoading] = useState({});
@@ -153,6 +155,12 @@ export default function TestManagementPage() {
                     onClose={() => setSheetsTarget(null)}
                 />
             )}
+            {linkTarget && (
+                <PublicLinkModal
+                    test={linkTarget}
+                    onClose={() => setLinkTarget(null)}
+                />
+            )}
 
             <div className="card" style={{ padding: 0 }}>
                 {loading ? (
@@ -235,6 +243,16 @@ export default function TestManagementPage() {
                                                         title="Export Final Result as JSON"
                                                     >
                                                         {exporting === test._id ? <span className="spinner spinner-sm" /> : '📊 Export JSON'}
+                                                    </button>
+
+                                                    {/* Public Integration URL */}
+                                                    <button
+                                                        id={`public-link-${test._id}`}
+                                                        className="btn btn-outline-info btn-sm"
+                                                        onClick={() => setLinkTarget(test)}
+                                                        title="Get Public Integration URL"
+                                                    >
+                                                        🔗 Integration
                                                     </button>
                                                 </div>
                                             </td>

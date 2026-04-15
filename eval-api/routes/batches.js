@@ -11,13 +11,20 @@ const { protect, apiKeyAuth } = require('../middleware/auth');
 
 // Middleware that accepts either JWT or API key
 const flexAuth = (req, res, next) => {
-    console.log('flexAuth headers:', req.headers);
-    const apiKey = req.headers['x-api-key'];
+    // Check both header and query param for API Key
+    const apiKey = req.headers['x-api-key'] || req.query.apiKey || req.query.api_key;
     if (apiKey) return apiKeyAuth(req, res, next);
     return protect(req, res, next);
 };
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * tags:
+ *   name: Batches
+ *   description: Batch OMR processing and ZIP uploads
+ */
 
 const UPLOADS_DIR = path.resolve(process.env.UPLOADS_DIR || './uploads');
 const EXTRACTED_DIR = path.resolve(process.env.EXTRACTED_DIR || './extracted');
@@ -35,6 +42,44 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // POST /api/batches/upload/:testID – upload ZIP (API key OR JWT auth)
+/**
+ * @swagger
+ * /api/batches/upload/{testID}:
+ *   post:
+ *     summary: Upload a ZIP file containing OMR sheets for processing
+ *     tags: [Batches]
+ *     security:
+ *       - bearerAuth: []
+ *       - apiKeyAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: testID
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: apiKey
+ *         description: System API Key for authentication
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               file:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       202:
+ *         description: ZIP uploaded and processing started
+ *       400:
+ *         description: No ZIP file uploaded
+ *       404:
+ *         description: Test not found
+ */
 router.post('/upload/:testID', flexAuth, upload.single('file'), async (req, res) => {
     const { testID } = req.params;
 
@@ -87,6 +132,30 @@ router.post('/upload/:testID', flexAuth, upload.single('file'), async (req, res)
 });
 
 // GET /api/batches/:testID – list all batches for a test
+/**
+ * @swagger
+ * /api/batches/{testID}:
+ *   get:
+ *     summary: List all batches for a specific test
+ *     tags: [Batches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: testID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of batches
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/TestBatch'
+ */
 router.get('/:testID', protect, async (req, res) => {
     try {
         const batches = await TestBatch.find({ testID: req.params.testID }).sort({ createdAt: -1 });
@@ -97,6 +166,30 @@ router.get('/:testID', protect, async (req, res) => {
 });
 
 // GET /api/batches/status/:batchID – get single batch status
+/**
+ * @swagger
+ * /api/batches/status/{batchID}:
+ *   get:
+ *     summary: Get status of a specific batch
+ *     tags: [Batches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: batchID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Batch status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/TestBatch'
+ *       404:
+ *         description: Batch not found
+ */
 router.get('/status/:batchID', protect, async (req, res) => {
     try {
         const batch = await TestBatch.findById(req.params.batchID);
@@ -107,6 +200,26 @@ router.get('/status/:batchID', protect, async (req, res) => {
     }
 });
 // DELETE /api/batches/:batchID – delete a batch and its records
+/**
+ * @swagger
+ * /api/batches/{batchID}:
+ *   delete:
+ *     summary: Delete a batch and all associated sheet records and files
+ *     tags: [Batches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: batchID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Batch deleted successfully
+ *       404:
+ *         description: Batch not found
+ */
 router.delete('/:batchID', protect, async (req, res) => {
     try {
         const batch = await TestBatch.findById(req.params.batchID);

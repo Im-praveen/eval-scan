@@ -2,11 +2,36 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Test = require('../models/Test');
 const SheetRecord = require('../models/SheetRecord');
-const { protect } = require('../middleware/auth');
+const { protect, apiKeyAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Tests
+ *   description: OMR Test/Exam management
+ */
+
 // GET /api/tests – list all tests
+/**
+ * @swagger
+ * /api/tests:
+ *   get:
+ *     summary: List all tests
+ *     tags: [Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of tests
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Test'
+ */
 router.get('/', protect, async (req, res) => {
     try {
         const tests = await Test.find()
@@ -18,7 +43,67 @@ router.get('/', protect, async (req, res) => {
     }
 });
 
+// GET /api/tests/public-list – listing for integrated applications
+/**
+ * @swagger
+ * /api/tests/public-list:
+ *   get:
+ *     summary: Get a list of tests with their public upload URLs (for integrations)
+ *     tags: [Tests]
+ *     parameters:
+ *       - in: query
+ *         name: apiKey
+ *         description: System API Key for authentication
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: List of tests with integration URLs
+ */
+router.get('/public-list', apiKeyAuth, async (req, res) => {
+    try {
+        const tests = await Test.find({ status: { $ne: 'deleted' } })
+            .sort({ createdAt: -1 })
+            .select('name conductDate status');
+
+        const apiKey = process.env.API_KEY || 'evalscan_secret_key_2024';
+        const baseUrl = `${req.protocol}://${req.get('host')}`;
+
+        const list = tests.map(t => ({
+            ...t._doc
+        }));
+
+        res.json(list);
+    } catch (err) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
 // GET /api/tests/:id – get single test
+/**
+ * @swagger
+ * /api/tests/{id}:
+ *   get:
+ *     summary: Get test details
+ *     tags: [Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Test details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Test'
+ *       404:
+ *         description: Test not found
+ */
 router.get('/:id', protect, async (req, res) => {
     try {
         const test = await Test.findById(req.params.id).populate('createdBy', 'name email');
@@ -30,6 +115,30 @@ router.get('/:id', protect, async (req, res) => {
 });
 
 // POST /api/tests – create test
+/**
+ * @swagger
+ * /api/tests:
+ *   post:
+ *     summary: Create a new test
+ *     tags: [Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, conductDate]
+ *             properties:
+ *               name: { type: string }
+ *               conductDate: { type: string, format: date-time }
+ *     responses:
+ *       201:
+ *         description: Test created
+ *       400:
+ *         description: Validation error
+ */
 router.post('/', protect, [
     body('name').notEmpty().withMessage('Test name is required'),
     body('conductDate')
@@ -81,6 +190,26 @@ router.patch('/:id', protect, async (req, res) => {
 });
 
 // GET /api/tests/:id/export – export final extracted result json
+/**
+ * @swagger
+ * /api/tests/{id}/export:
+ *   get:
+ *     summary: Export final processed OMR results as JSON
+ *     tags: [Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Aggregated OMR data
+ *       404:
+ *         description: Test not found
+ */
 router.get('/:id/export', protect, async (req, res) => {
     try {
         const test = await Test.findById(req.params.id);
@@ -93,19 +222,19 @@ router.get('/:id/export', protect, async (req, res) => {
         for (const sheet of sheets) {
             // Priority to updated_result if reviewed, else fallback to raw result
             const rawResult = sheet.result || {};
-            const finalResult = Object.keys(sheet.updated_result || {}).length > 0 
-                ? sheet.updated_result 
+            const finalResult = Object.keys(sheet.updated_result || {}).length > 0
+                ? sheet.updated_result
                 : rawResult;
-            
+
             const survey = { responses: [] };
 
             for (const [key, valObj] of Object.entries(finalResult)) {
-                const value = (typeof valObj === 'object' && valObj !== null && valObj.value !== undefined) 
-                    ? String(valObj.value) 
+                const value = (typeof valObj === 'object' && valObj !== null && valObj.value !== undefined)
+                    ? String(valObj.value)
                     : String(valObj);
-                
+
                 const qMatch = key.match(/^q(?:uestion)?\s*(\d+)$/i);
-                
+
                 if (qMatch) {
                     survey.responses.push({
                         questionNo: parseInt(qMatch[1], 10),
@@ -116,11 +245,11 @@ router.get('/:id/export', protect, async (req, res) => {
                     let finalKey = key;
                     if (key.toLowerCase() === 'rollno' || key.toLowerCase() === 'roll no') finalKey = 'StudentCode';
                     if (key.toLowerCase() === 'class') finalKey = 'Grade';
-                    
+
                     survey[finalKey] = value;
                 }
             }
-            
+
             survey.responses.sort((a, b) => a.questionNo - b.questionNo);
             surveys.push(survey);
         }

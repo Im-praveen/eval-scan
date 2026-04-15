@@ -6,7 +6,26 @@ const { protect } = require('../middleware/auth');
 
 const router = express.Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Dashboard
+ *   description: Global system statistics and activity
+ */
+
 // GET /api/dashboard/stats
+/**
+ * @swagger
+ * /api/dashboard/stats:
+ *   get:
+ *     summary: Get overall system statistics for the dashboard
+ *     tags: [Dashboard]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Global statistics and recent activity
+ */
 router.get('/stats', protect, async (req, res) => {
     try {
         const [

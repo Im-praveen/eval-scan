@@ -12,6 +12,9 @@ const batchRoutes = require('./routes/batches');
 const sheetRoutes = require('./routes/sheets');
 const dashboardRoutes = require('./routes/dashboard');
 
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpecs = require('./swagger');
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -33,6 +36,9 @@ app.use('/extracted', express.static(EXTRACTED_DIR));
 
 // Serve public folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 // API Routes
 app.use('/api/auth', authRoutes);

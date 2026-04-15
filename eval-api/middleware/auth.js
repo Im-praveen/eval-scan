@@ -28,7 +28,7 @@ const protect = async (req, res, next) => {
 
 // API Key middleware for third-party uploads
 const apiKeyAuth = (req, res, next) => {
-    const apiKey = req.headers['x-api-key'];
+    const apiKey = req.headers['x-api-key'] || req.query.apiKey || req.query.api_key;
     if (!apiKey || apiKey !== process.env.API_KEY) {
         return res.status(401).json({ error: 'Invalid or missing API key' });
     }
