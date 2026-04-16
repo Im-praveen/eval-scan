@@ -79,26 +79,26 @@ export default function TestManagementPage() {
         try {
             // 1. Fetch as standard JSON
             const { data } = await client.get(`/tests/${testId}/export`);
-            
+
             // 2. Format JSON string
             const jsonString = JSON.stringify(data, null, 2);
-            
+
             // 3. Use octet-stream to force browser to honor name and extension
             const blob = new Blob([jsonString], { type: 'application/octet-stream' });
             const url = window.URL.createObjectURL(blob);
-            
+
             // 4. Construct safe filename
             const fileName = `${(testName || 'export').replace(/[^a-z0-9]/gi, '_').toLowerCase()}_results.json`;
-            
+
             const link = document.createElement('a');
             link.href = url;
             link.download = fileName;
             link.style.display = 'none';
-            
+
             // 5. Trigger download
             document.body.appendChild(link);
             link.click();
-            
+
             // 6. 1s timeout to ensure name capture before URL revocation
             setTimeout(() => {
                 document.body.removeChild(link);
@@ -243,16 +243,6 @@ export default function TestManagementPage() {
                                                         title="Export Final Result as JSON"
                                                     >
                                                         {exporting === test._id ? <span className="spinner spinner-sm" /> : '📊 Export JSON'}
-                                                    </button>
-
-                                                    {/* Public Integration URL */}
-                                                    <button
-                                                        id={`public-link-${test._id}`}
-                                                        className="btn btn-outline-info btn-sm"
-                                                        onClick={() => setLinkTarget(test)}
-                                                        title="Get Public Integration URL"
-                                                    >
-                                                        🔗 Integration
                                                     </button>
                                                 </div>
                                             </td>
