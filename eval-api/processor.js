@@ -1,9 +1,10 @@
 const { workerData, parentPort } = require('worker_threads');
 const AdmZip = require('adm-zip');
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
+const os = require('os');
 require('dotenv').config();
 
 // Models
@@ -38,29 +39,57 @@ async function processZip() {
 
         // 2. Run JAR
         const javaPath = process.env.JAVA_PATH || 'java';
-        const command = `"${javaPath}" -jar "${jarPath}" "${templatePath}" "${targetDir}"`;
+        
+        // Dynamic Heap Memory: Use 50% of total system memory
+        const totalMemMB = Math.floor(os.totalmem() / (1024 * 1024));
+        const heapSizeMB = Math.floor(totalMemMB * 0.5);
+        const xmxFlag = `-Xmx${heapSizeMB}m`;
 
-        exec(command, async (error, stdout, stderr) => {
-            if (error) {
-                console.error(`JAR error: ${error.message}`);
+        console.log(`Starting JAR for batch ${batchID} with heap ${heapSizeMB}MB...`);
+        
+        const args = [xmxFlag, '-jar', jarPath, templatePath, targetDir];
+        const child = spawn(javaPath, args);
+
+        let stdoutData = '';
+        let stderrData = '';
+
+        // Safety Timeout: 15 minutes
+        const timeout = setTimeout(() => {
+            child.kill();
+            console.error(`Batch ${batchID} timed out.`);
+        }, 15 * 60 * 1000);
+
+        child.stdout.on('data', (data) => {
+            stdoutData += data.toString();
+        });
+
+        child.stderr.on('data', (data) => {
+            stderrData += data.toString();
+        });
+
+        child.on('close', async (code) => {
+            clearTimeout(timeout);
+
+            if (code !== 0) {
+                console.error(`JAR error for batch ${batchID} (Code ${code}): ${stderrData}`);
                 await TestBatch.findByIdAndUpdate(batchID, {
                     status: 'failed',
-                    errorMessage: error.message
+                    errorMessage: (stderrData || `Exited with code ${code}`).substring(0, 1000)
                 });
                 await mongoose.disconnect();
                 return;
             }
 
-            if (stderr) console.warn(`JAR stderr: ${stderr}`);
-
             // 3. Save result JSON to disk (legacy support)
             if (!fs.existsSync(resultsDir)) fs.mkdirSync(resultsDir, { recursive: true });
             const resultFile = path.join(resultsDir, `${batchID}.json`);
-            fs.writeFileSync(resultFile, stdout);
+            fs.writeFileSync(resultFile, stdoutData);
 
             // 4. Parse JSON and save SheetRecords to MongoDB
             try {
-                const parsedJson = JSON.parse(stdout);
+                if (!stdoutData.trim()) throw new Error('JAR produced empty output');
+                
+                const parsedJson = JSON.parse(stdoutData);
                 
                 // Result shape is either { resultData, blockOrder } or array directly
                 const resultData = parsedJson.resultData || (Array.isArray(parsedJson) ? parsedJson : []);
@@ -75,32 +104,26 @@ async function processZip() {
 
                 if (Array.isArray(resultData)) {
                     for (const item of resultData) {
-                        // Resolve the sheetName specifically from Side1-image if present
                         let explicitName = null;
                         if (item['Side1-image']) {
-                            // Extract just the filename (e.g. Scan0001.jpg)
                             explicitName = path.basename(item['Side1-image']);
                         }
                         
                         const finalName = explicitName || item.sheetName || item.fileName || item.name;
                         
-                        // If the JAR outputs a completely nameless generic error block, discard it
-                        // to prevent phantom 'unknown' sheets. Any actual skipped image files will
-                        // still be picked up automatically below in the getAllImages() fallback.
                         if (!finalName) {
                             console.warn('Discarding nameless result block:', item);
                             continue;
                         }
 
                         const sheetName = finalName;
-                        // Find the image file path in extracted dir
                         const imagePath = findImagePath(targetDir, sheetName);
                         sheetRecords.push({
                             batchID,
                             testID,
                             sheetName,
                             sheetPath: imagePath || path.join(targetDir, sheetName),
-                            result: item.result || {},  // The actual extracted bubble values
+                            result: item.result || {},
                             updated_result: {},
                             is_updated: false,
                             last_modified: new Date(),
@@ -109,7 +132,6 @@ async function processZip() {
                         });
                     }
                 } else if (typeof resultData === 'object') {
-                    // Object keyed by filename
                     for (const [sheetName, result] of Object.entries(resultData)) {
                         const imagePath = findImagePath(targetDir, sheetName);
                         sheetRecords.push({
@@ -125,7 +147,7 @@ async function processZip() {
                     }
                 }
 
-                // Also scan for images not in result (ensure all images are recorded)
+                // Scan for missing images
                 const allImages = getAllImages(targetDir);
                 for (const imgPath of allImages) {
                     const imgName = path.basename(imgPath);
@@ -151,21 +173,23 @@ async function processZip() {
                 await TestBatch.findByIdAndUpdate(batchID, { status: 'completed' });
                 console.log(`Batch ${batchID} completed: ${sheetRecords.length} sheet(s) saved`);
             } catch (parseErr) {
-                console.error(`JSON parse error: ${parseErr.message}`);
-                // Still save images even if JSON parse fails
+                console.error(`Process result error: ${parseErr.message}`);
                 const allImages = getAllImages(targetDir);
                 const sheetRecords = allImages.map(imgPath => ({
                     batchID,
                     testID,
                     sheetName: path.basename(imgPath),
                     sheetPath: imgPath,
-                    result: { raw: stdout.substring(0, 500) },
+                    result: { raw_snippet: stdoutData.substring(0, 500) },
                     updated_result: {},
                     is_updated: false,
                     last_modified: new Date()
                 }));
                 if (sheetRecords.length > 0) await SheetRecord.insertMany(sheetRecords);
-                await TestBatch.findByIdAndUpdate(batchID, { status: 'completed' });
+                await TestBatch.findByIdAndUpdate(batchID, { 
+                    status: 'completed',
+                    errorMessage: `JSON processed with issues: ${parseErr.message}` 
+                });
             }
 
             await mongoose.disconnect();

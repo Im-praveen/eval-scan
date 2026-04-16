@@ -324,6 +324,19 @@ export default function TestManagementPage() {
                                                                                 : batch.status === 'processing' ? 'badge-warning'
                                                                                     : 'badge-muted'
                                                                             }`}>{batch.status}</span>
+
+                                                                        {batch.status === 'failed' && batch.errorMessage && (
+                                                                            <div 
+                                                                                style={{ 
+                                                                                    fontSize: 10, color: 'var(--danger)', maxWidth: 150, 
+                                                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                                                                                    cursor: 'help'
+                                                                                }} 
+                                                                                title={batch.errorMessage}
+                                                                            >
+                                                                                ⚠️ {batch.errorMessage}
+                                                                            </div>
+                                                                        )}
                                                                         {batch.status === 'completed' && (
                                                                             <div style={{ display: 'flex', gap: 6 }}>
                                                                                 <button

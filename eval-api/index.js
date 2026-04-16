@@ -11,6 +11,7 @@ const testRoutes = require('./routes/tests');
 const batchRoutes = require('./routes/batches');
 const sheetRoutes = require('./routes/sheets');
 const dashboardRoutes = require('./routes/dashboard');
+const TestBatch = require('./models/TestBatch');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpecs = require('./swagger');
@@ -18,8 +19,20 @@ const swaggerSpecs = require('./swagger');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Connect to MongoDB
-connectDB();
+// Connect to MongoDB and Cleanup
+connectDB().then(async () => {
+    try {
+        await TestBatch.updateMany(
+            { status: 'processing' },
+            { 
+                status: 'failed', 
+                errorMessage: 'Evaluation interrupted (possible server restart/crash)' 
+            }
+        );
+    } catch (err) {
+        console.error('Startup cleanup error:', err);
+    }
+});
 
 // Middleware
 app.use(cors({
