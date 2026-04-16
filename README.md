@@ -70,6 +70,41 @@ UI: [http://localhost:5173](http://localhost:5173)
 
 ---
 
+## 🏗️ Production Setup (AWS EC2 Monolith)
+
+For a robust, non-Dockerized production deployment on AWS:
+
+### 1. Prerequisite (OpenJDK 11)
+The OMR engine requires specifically **OpenJDK 11**:
+```bash
+sudo apt install openjdk-11-jre-headless -y
+```
+
+### 2. PM2 Process Management
+The backend should be managed by PM2 using the provided `ecosystem.config.js`:
+```bash
+cd eval-api
+npm install -g pm2
+pm2 start ecosystem.config.js --env production
+pm2 save
+pm2 startup
+```
+
+### 3. Nginx Configuration
+Use the `nginx.conf.template` to configure a reverse proxy. 
+- Serve React `dist` at the root `/`.
+- Proxy `/api` to `localhost:3000`.
+- Proxy `/api-docs` to `localhost:3000`.
+
+### 4. Automated Deployment
+A `deploy.sh` script is provided to automate build and restart cycles:
+```bash
+chmod +x deploy.sh
+./deploy.sh
+```
+
+---
+
 ## 🔗 Integration Guide
 For third-party integrations, use the **Public Discovery API**:
 - **Endpoint**: `GET http://localhost:3000/api/tests/public-list?apiKey=YOUR_KEY`
