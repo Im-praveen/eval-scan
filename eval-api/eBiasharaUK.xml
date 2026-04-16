@@ -190,7 +190,7 @@
     <bubble lt="1589 1410" rb="1639 1459" value="P4" />
     <bubble lt="1589 1487" rb="1639 1535" value="P6" />
   </bubblegroup>
-  <bubblegroup id="TestBookletCode">
+  <bubblegroup id="VersionID">
     <bubble lt="1586 1632" rb="1637 1680" value="1" />
     <bubble lt="1586 1705" rb="1636 1753" value="2" />
     <bubble lt="1586 1779" rb="1636 1828" value="3" />
