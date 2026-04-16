@@ -1,0 +1,538 @@
+<customsheet id="eBiashara UK" xdpi="300" ydpi="300" bubbleshape="oval" bubblefullness="0.5" thresholding="otsu" dropout="216 255 0 255 0 255">
+  <guides>
+    <guide xy="208.2 303.9" lt="0 0" rb="16 15" shape="oval" h="59" w="58" xedge="left" yedge="top" />
+    <guide xy="198.4 3256.1" lt="0 85" rb="15 100" shape="oval" h="58" w="58" xedge="left" yedge="bottom" />
+    <guide xy="2292.5 312.5" lt="86 0" rb="100 15" shape="oval" h="58" w="60" xedge="right" yedge="top" />
+    <guide xy="2284.9 3261.1" lt="85 85" rb="100 100" shape="oval" h="57" w="59" xedge="right" yedge="bottom" />
+  </guides>
+  <bubblegroup id="SchoolType">
+    <bubble lt="1935 802" rb="1993 856" value="GALOP" />
+    <bubble lt="1935 869" rb="1993 923" value="GEOP" />
+    <bubble lt="1934 932" rb="1992 986" value="OTHER" />
+  </bubblegroup>
+  <bubblegrid id="RollNo">
+    <bubblegroup id="RollNo1">
+      <bubble lt="215 1254" rb="265 1302" value="0" />
+      <bubble lt="214 1328" rb="265 1377" value="1" />
+      <bubble lt="215 1402" rb="265 1451" value="2" />
+      <bubble lt="215 1477" rb="264 1526" value="3" />
+      <bubble lt="214 1552" rb="263 1600" value="4" />
+      <bubble lt="214 1626" rb="263 1674" value="5" />
+      <bubble lt="213 1701" rb="263 1749" value="6" />
+      <bubble lt="213 1775" rb="263 1824" value="7" />
+      <bubble lt="213 1849" rb="263 1898" value="8" />
+      <bubble lt="213 1923" rb="262 1971" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo2">
+      <bubble lt="297 1253" rb="347 1301" value="0" />
+      <bubble lt="296 1328" rb="346 1377" value="1" />
+      <bubble lt="296 1401" rb="346 1450" value="2" />
+      <bubble lt="296 1477" rb="346 1525" value="3" />
+      <bubble lt="296 1552" rb="345 1600" value="4" />
+      <bubble lt="295 1626" rb="346 1674" value="5" />
+      <bubble lt="295 1700" rb="345 1749" value="6" />
+      <bubble lt="295 1775" rb="346 1824" value="7" />
+      <bubble lt="295 1848" rb="345 1897" value="8" />
+      <bubble lt="295 1922" rb="345 1971" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo3">
+      <bubble lt="381 1253" rb="432 1302" value="0" />
+      <bubble lt="380 1328" rb="431 1377" value="1" />
+      <bubble lt="380 1402" rb="431 1451" value="2" />
+      <bubble lt="379 1477" rb="431 1526" value="3" />
+      <bubble lt="379 1552" rb="431 1600" value="4" />
+      <bubble lt="379 1626" rb="430 1674" value="5" />
+      <bubble lt="379 1700" rb="430 1749" value="6" />
+      <bubble lt="379 1775" rb="430 1824" value="7" />
+      <bubble lt="379 1849" rb="430 1897" value="8" />
+      <bubble lt="379 1922" rb="429 1972" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo4">
+      <bubble lt="466 1253" rb="516 1302" value="0" />
+      <bubble lt="465 1329" rb="515 1377" value="1" />
+      <bubble lt="466 1402" rb="515 1450" value="2" />
+      <bubble lt="465 1477" rb="515 1525" value="3" />
+      <bubble lt="465 1552" rb="514 1600" value="4" />
+      <bubble lt="465 1626" rb="514 1674" value="5" />
+      <bubble lt="464 1701" rb="514 1749" value="6" />
+      <bubble lt="465 1776" rb="514 1823" value="7" />
+      <bubble lt="464 1849" rb="514 1897" value="8" />
+      <bubble lt="464 1923" rb="513 1972" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo5">
+      <bubble lt="550 1253" rb="600 1302" value="0" />
+      <bubble lt="550 1328" rb="600 1377" value="1" />
+      <bubble lt="550 1402" rb="600 1451" value="2" />
+      <bubble lt="549 1477" rb="600 1526" value="3" />
+      <bubble lt="549 1552" rb="599 1601" value="4" />
+      <bubble lt="549 1626" rb="599 1675" value="5" />
+      <bubble lt="549 1701" rb="599 1749" value="6" />
+      <bubble lt="549 1776" rb="599 1824" value="7" />
+      <bubble lt="549 1849" rb="599 1898" value="8" />
+      <bubble lt="548 1923" rb="598 1972" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo6">
+      <bubble lt="634 1253" rb="685 1303" value="0" />
+      <bubble lt="633 1329" rb="684 1378" value="1" />
+      <bubble lt="633 1402" rb="684 1451" value="2" />
+      <bubble lt="633 1477" rb="684 1527" value="3" />
+      <bubble lt="632 1552" rb="683 1601" value="4" />
+      <bubble lt="632 1626" rb="683 1675" value="5" />
+      <bubble lt="632 1701" rb="683 1750" value="6" />
+      <bubble lt="632 1776" rb="683 1825" value="7" />
+      <bubble lt="632 1849" rb="683 1898" value="8" />
+      <bubble lt="632 1923" rb="682 1972" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo7">
+      <bubble lt="724 1254" rb="773 1303" value="0" />
+      <bubble lt="723 1329" rb="773 1378" value="1" />
+      <bubble lt="723 1403" rb="773 1451" value="2" />
+      <bubble lt="723 1478" rb="772 1526" value="3" />
+      <bubble lt="723 1553" rb="772 1601" value="4" />
+      <bubble lt="723 1627" rb="772 1675" value="5" />
+      <bubble lt="722 1702" rb="771 1750" value="6" />
+      <bubble lt="722 1777" rb="772 1825" value="7" />
+      <bubble lt="722 1850" rb="772 1898" value="8" />
+      <bubble lt="722 1924" rb="771 1972" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo8">
+      <bubble lt="808 1255" rb="858 1303" value="0" />
+      <bubble lt="807 1330" rb="858 1378" value="1" />
+      <bubble lt="808 1403" rb="858 1452" value="2" />
+      <bubble lt="807 1478" rb="857 1527" value="3" />
+      <bubble lt="807 1553" rb="857 1602" value="4" />
+      <bubble lt="807 1627" rb="857 1676" value="5" />
+      <bubble lt="806 1702" rb="856 1750" value="6" />
+      <bubble lt="807 1777" rb="857 1825" value="7" />
+      <bubble lt="807 1850" rb="856 1899" value="8" />
+      <bubble lt="806 1924" rb="856 1973" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo9">
+      <bubble lt="892 1255" rb="942 1304" value="0" />
+      <bubble lt="891 1330" rb="941 1379" value="1" />
+      <bubble lt="891 1403" rb="941 1453" value="2" />
+      <bubble lt="891 1478" rb="941 1528" value="3" />
+      <bubble lt="890 1553" rb="940 1603" value="4" />
+      <bubble lt="890 1627" rb="941 1677" value="5" />
+      <bubble lt="889 1702" rb="940 1751" value="6" />
+      <bubble lt="890 1777" rb="940 1826" value="7" />
+      <bubble lt="890 1850" rb="940 1899" value="8" />
+      <bubble lt="889 1924" rb="939 1974" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo10">
+      <bubble lt="976 1255" rb="1025 1304" value="0" />
+      <bubble lt="975 1330" rb="1024 1379" value="1" />
+      <bubble lt="975 1404" rb="1025 1453" value="2" />
+      <bubble lt="975 1479" rb="1024 1527" value="3" />
+      <bubble lt="974 1554" rb="1024 1602" value="4" />
+      <bubble lt="974 1628" rb="1024 1676" value="5" />
+      <bubble lt="974 1703" rb="1023 1751" value="6" />
+      <bubble lt="974 1778" rb="1023 1826" value="7" />
+      <bubble lt="974 1851" rb="1023 1899" value="8" />
+      <bubble lt="974 1925" rb="1023 1973" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo11">
+      <bubble lt="1060 1255" rb="1110 1304" value="0" />
+      <bubble lt="1059 1330" rb="1110 1379" value="1" />
+      <bubble lt="1060 1404" rb="1111 1453" value="2" />
+      <bubble lt="1059 1479" rb="1110 1528" value="3" />
+      <bubble lt="1059 1554" rb="1109 1603" value="4" />
+      <bubble lt="1059 1628" rb="1109 1677" value="5" />
+      <bubble lt="1058 1703" rb="1108 1751" value="6" />
+      <bubble lt="1059 1778" rb="1109 1826" value="7" />
+      <bubble lt="1058 1851" rb="1109 1900" value="8" />
+      <bubble lt="1058 1925" rb="1108 1974" value="9" />
+    </bubblegroup>
+    <bubblegroup id="RollNo12">
+      <bubble lt="1144 1255" rb="1194 1304" value="0" />
+      <bubble lt="1143 1330" rb="1194 1380" value="1" />
+      <bubble lt="1143 1404" rb="1194 1453" value="2" />
+      <bubble lt="1142 1479" rb="1193 1528" value="3" />
+      <bubble lt="1142 1554" rb="1193 1603" value="4" />
+      <bubble lt="1142 1628" rb="1193 1677" value="5" />
+      <bubble lt="1142 1703" rb="1192 1752" value="6" />
+      <bubble lt="1142 1778" rb="1193 1827" value="7" />
+      <bubble lt="1142 1851" rb="1193 1900" value="8" />
+      <bubble lt="1141 1925" rb="1192 1974" value="9" />
+    </bubblegroup>
+  </bubblegrid>
+  <bubblegrid id="Age">
+    <bubblegroup id="Age1">
+      <bubble lt="1285 1256" rb="1335 1304" value="0" />
+      <bubble lt="1285 1331" rb="1335 1380" value="1" />
+      <bubble lt="1285 1405" rb="1335 1453" value="2" />
+      <bubble lt="1285 1479" rb="1335 1528" value="3" />
+      <bubble lt="1284 1554" rb="1334 1603" value="4" />
+      <bubble lt="1284 1629" rb="1334 1677" value="5" />
+      <bubble lt="1284 1704" rb="1333 1751" value="6" />
+      <bubble lt="1284 1778" rb="1334 1826" value="7" />
+      <bubble lt="1284 1851" rb="1334 1900" value="8" />
+      <bubble lt="1283 1926" rb="1333 1974" value="9" />
+    </bubblegroup>
+    <bubblegroup id="Age2">
+      <bubble lt="1366 1256" rb="1416 1305" value="0" />
+      <bubble lt="1365 1331" rb="1415 1380" value="1" />
+      <bubble lt="1365 1405" rb="1415 1454" value="2" />
+      <bubble lt="1365 1480" rb="1415 1529" value="3" />
+      <bubble lt="1364 1555" rb="1414 1603" value="4" />
+      <bubble lt="1364 1629" rb="1414 1677" value="5" />
+      <bubble lt="1364 1704" rb="1414 1752" value="6" />
+      <bubble lt="1365 1778" rb="1414 1827" value="7" />
+      <bubble lt="1364 1852" rb="1414 1900" value="8" />
+      <bubble lt="1363 1926" rb="1413 1975" value="9" />
+    </bubblegroup>
+  </bubblegrid>
+  <bubblegroup id="Sex">
+    <bubble lt="1496 1184" rb="1546 1233" value="M" />
+    <bubble lt="1589 1183" rb="1640 1232" value="F" />
+  </bubblegroup>
+  <bubblegroup id="Grade">
+    <bubble lt="1589 1410" rb="1639 1459" value="P4" />
+    <bubble lt="1589 1487" rb="1639 1535" value="P6" />
+  </bubblegroup>
+  <bubblegroup id="TestBookletCode">
+    <bubble lt="1586 1632" rb="1637 1680" value="1" />
+    <bubble lt="1586 1705" rb="1636 1753" value="2" />
+    <bubble lt="1586 1779" rb="1636 1828" value="3" />
+    <bubble lt="1586 1854" rb="1636 1903" value="4" />
+    <bubble lt="1586 1928" rb="1636 1976" value="5" />
+  </bubblegroup>
+  <bubblegrid id="SubjectCode">
+    <bubblegroup id="SubjectCode1">
+      <bubble lt="1721 1257" rb="1770 1305" value="0" />
+      <bubble lt="1721 1332" rb="1770 1380" value="1" />
+      <bubble lt="1721 1406" rb="1770 1454" value="2" />
+      <bubble lt="1721 1481" rb="1770 1529" value="3" />
+      <bubble lt="1721 1556" rb="1770 1604" value="4" />
+      <bubble lt="1720 1630" rb="1770 1678" value="5" />
+      <bubble lt="1720 1705" rb="1769 1753" value="6" />
+      <bubble lt="1720 1779" rb="1770 1827" value="7" />
+      <bubble lt="1720 1853" rb="1770 1901" value="8" />
+      <bubble lt="1719 1927" rb="1769 1975" value="9" />
+    </bubblegroup>
+    <bubblegroup id="SubjectCode2">
+      <bubble lt="1805 1257" rb="1856 1306" value="0" />
+      <bubble lt="1805 1332" rb="1855 1381" value="1" />
+      <bubble lt="1805 1406" rb="1856 1455" value="2" />
+      <bubble lt="1805 1481" rb="1855 1530" value="3" />
+      <bubble lt="1805 1556" rb="1855 1604" value="4" />
+      <bubble lt="1805 1630" rb="1855 1678" value="5" />
+      <bubble lt="1804 1705" rb="1854 1753" value="6" />
+      <bubble lt="1805 1779" rb="1855 1828" value="7" />
+      <bubble lt="1805 1853" rb="1855 1902" value="8" />
+      <bubble lt="1804 1927" rb="1855 1976" value="9" />
+    </bubblegroup>
+    <bubblegroup id="SubjectCode3">
+      <bubble lt="1889 1256" rb="1941 1306" value="0" />
+      <bubble lt="1889 1331" rb="1941 1381" value="1" />
+      <bubble lt="1889 1405" rb="1941 1455" value="2" />
+      <bubble lt="1889 1480" rb="1941 1530" value="3" />
+      <bubble lt="1888 1555" rb="1940 1605" value="4" />
+      <bubble lt="1888 1629" rb="1940 1679" value="5" />
+      <bubble lt="1888 1704" rb="1939 1753" value="6" />
+      <bubble lt="1889 1779" rb="1940 1828" value="7" />
+      <bubble lt="1888 1852" rb="1940 1902" value="8" />
+      <bubble lt="1888 1926" rb="1939 1976" value="9" />
+    </bubblegroup>
+    <bubblegroup id="SubjectCode4">
+      <bubble lt="1974 1257" rb="2024 1306" value="0" />
+      <bubble lt="1974 1332" rb="2023 1381" value="1" />
+      <bubble lt="1974 1406" rb="2023 1455" value="2" />
+      <bubble lt="1974 1481" rb="2023 1529" value="3" />
+      <bubble lt="1973 1556" rb="2023 1604" value="4" />
+      <bubble lt="1974 1630" rb="2023 1678" value="5" />
+      <bubble lt="1973 1705" rb="2023 1753" value="6" />
+      <bubble lt="1974 1780" rb="2023 1828" value="7" />
+      <bubble lt="1974 1853" rb="2023 1902" value="8" />
+      <bubble lt="1974 1927" rb="2023 1976" value="9" />
+    </bubblegroup>
+  </bubblegrid>
+  <bubblegroup id="Question1">
+    <bubble lt="295 2214" rb="345 2263" value="A" />
+    <bubble lt="380 2215" rb="430 2263" value="B" />
+    <bubble lt="463 2215" rb="513 2263" value="C" />
+    <bubble lt="548 2215" rb="598 2263" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question2">
+    <bubble lt="295 2289" rb="345 2338" value="A" />
+    <bubble lt="379 2289" rb="430 2338" value="B" />
+    <bubble lt="463 2290" rb="513 2338" value="C" />
+    <bubble lt="548 2290" rb="598 2338" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question3">
+    <bubble lt="294 2362" rb="345 2412" value="A" />
+    <bubble lt="379 2362" rb="430 2412" value="B" />
+    <bubble lt="462 2362" rb="513 2412" value="C" />
+    <bubble lt="547 2363" rb="598 2412" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question4">
+    <bubble lt="295 2434" rb="344 2482" value="A" />
+    <bubble lt="379 2434" rb="429 2482" value="B" />
+    <bubble lt="463 2434" rb="512 2483" value="C" />
+    <bubble lt="548 2434" rb="597 2483" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question5">
+    <bubble lt="294 2506" rb="344 2554" value="A" />
+    <bubble lt="378 2506" rb="429 2555" value="B" />
+    <bubble lt="462 2506" rb="512 2555" value="C" />
+    <bubble lt="547 2507" rb="597 2555" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question6">
+    <bubble lt="293 2578" rb="344 2627" value="A" />
+    <bubble lt="378 2578" rb="429 2627" value="B" />
+    <bubble lt="461 2578" rb="512 2627" value="C" />
+    <bubble lt="546 2579" rb="597 2628" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question7">
+    <bubble lt="293 2650" rb="343 2699" value="A" />
+    <bubble lt="378 2650" rb="428 2699" value="B" />
+    <bubble lt="462 2651" rb="511 2699" value="C" />
+    <bubble lt="547 2651" rb="596 2699" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question8">
+    <bubble lt="293 2722" rb="343 2771" value="A" />
+    <bubble lt="378 2723" rb="428 2771" value="B" />
+    <bubble lt="461 2723" rb="511 2771" value="C" />
+    <bubble lt="547 2723" rb="596 2772" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question9">
+    <bubble lt="292 2795" rb="343 2844" value="A" />
+    <bubble lt="377 2795" rb="428 2844" value="B" />
+    <bubble lt="460 2795" rb="511 2844" value="C" />
+    <bubble lt="546 2795" rb="596 2844" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question10">
+    <bubble lt="293 2869" rb="342 2917" value="A" />
+    <bubble lt="377 2869" rb="427 2917" value="B" />
+    <bubble lt="461 2869" rb="510 2917" value="C" />
+    <bubble lt="546 2869" rb="595 2917" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question11">
+    <bubble lt="292 2940" rb="342 2989" value="A" />
+    <bubble lt="377 2940" rb="427 2989" value="B" />
+    <bubble lt="460 2941" rb="510 2989" value="C" />
+    <bubble lt="545 2941" rb="595 2989" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question12">
+    <bubble lt="292 3013" rb="343 3062" value="A" />
+    <bubble lt="377 3013" rb="428 3062" value="B" />
+    <bubble lt="460 3014" rb="511 3063" value="C" />
+    <bubble lt="545 3014" rb="595 3063" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question13">
+    <bubble lt="789 2216" rb="839 2264" value="A" />
+    <bubble lt="874 2216" rb="923 2265" value="B" />
+    <bubble lt="956 2217" rb="1005 2265" value="C" />
+    <bubble lt="1041 2217" rb="1091 2265" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question14">
+    <bubble lt="789 2291" rb="840 2339" value="A" />
+    <bubble lt="874 2291" rb="923 2340" value="B" />
+    <bubble lt="956 2291" rb="1006 2340" value="C" />
+    <bubble lt="1041 2292" rb="1091 2340" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question15">
+    <bubble lt="788 2363" rb="839 2413" value="A" />
+    <bubble lt="873 2364" rb="923 2414" value="B" />
+    <bubble lt="955 2364" rb="1006 2414" value="C" />
+    <bubble lt="1040 2364" rb="1091 2414" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question16">
+    <bubble lt="789 2435" rb="838 2484" value="A" />
+    <bubble lt="873 2436" rb="922 2484" value="B" />
+    <bubble lt="956 2436" rb="1005 2485" value="C" />
+    <bubble lt="1040 2437" rb="1090 2485" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question17">
+    <bubble lt="788 2507" rb="838 2556" value="A" />
+    <bubble lt="872 2508" rb="922 2556" value="B" />
+    <bubble lt="955 2508" rb="1005 2557" value="C" />
+    <bubble lt="1040 2509" rb="1090 2557" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question18">
+    <bubble lt="787 2579" rb="838 2628" value="A" />
+    <bubble lt="872 2580" rb="922 2629" value="B" />
+    <bubble lt="954 2580" rb="1004 2629" value="C" />
+    <bubble lt="1039 2580" rb="1090 2629" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question19">
+    <bubble lt="787 2652" rb="837 2700" value="A" />
+    <bubble lt="872 2652" rb="921 2701" value="B" />
+    <bubble lt="954 2652" rb="1004 2701" value="C" />
+    <bubble lt="1040 2653" rb="1089 2701" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question20">
+    <bubble lt="787 2724" rb="837 2772" value="A" />
+    <bubble lt="872 2725" rb="921 2773" value="B" />
+    <bubble lt="954 2725" rb="1003 2773" value="C" />
+    <bubble lt="1039 2725" rb="1089 2774" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question21">
+    <bubble lt="787 2796" rb="837 2845" value="A" />
+    <bubble lt="871 2797" rb="921 2846" value="B" />
+    <bubble lt="953 2797" rb="1003 2846" value="C" />
+    <bubble lt="1038 2797" rb="1089 2846" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question22">
+    <bubble lt="787 2870" rb="836 2918" value="A" />
+    <bubble lt="872 2870" rb="920 2919" value="B" />
+    <bubble lt="953 2871" rb="1003 2919" value="C" />
+    <bubble lt="1039 2871" rb="1088 2919" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question23">
+    <bubble lt="786 2942" rb="836 2990" value="A" />
+    <bubble lt="870 2942" rb="920 2991" value="B" />
+    <bubble lt="953 2943" rb="1003 2991" value="C" />
+    <bubble lt="1038 2943" rb="1088 2991" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question24">
+    <bubble lt="786 3015" rb="837 3064" value="A" />
+    <bubble lt="870 3015" rb="921 3064" value="B" />
+    <bubble lt="952 3015" rb="1003 3064" value="C" />
+    <bubble lt="1038 3016" rb="1088 3065" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question25">
+    <bubble lt="1293 2217" rb="1343 2266" value="A" />
+    <bubble lt="1378 2218" rb="1427 2266" value="B" />
+    <bubble lt="1461 2218" rb="1510 2266" value="C" />
+    <bubble lt="1546 2218" rb="1596 2266" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question26">
+    <bubble lt="1293 2292" rb="1343 2341" value="A" />
+    <bubble lt="1378 2292" rb="1427 2341" value="B" />
+    <bubble lt="1460 2293" rb="1510 2341" value="C" />
+    <bubble lt="1545 2293" rb="1596 2342" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question27">
+    <bubble lt="1292 2365" rb="1343 2415" value="A" />
+    <bubble lt="1377 2365" rb="1427 2415" value="B" />
+    <bubble lt="1460 2365" rb="1510 2415" value="C" />
+    <bubble lt="1545 2365" rb="1596 2415" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question28">
+    <bubble lt="1293 2437" rb="1343 2485" value="A" />
+    <bubble lt="1377 2437" rb="1427 2486" value="B" />
+    <bubble lt="1460 2437" rb="1509 2486" value="C" />
+    <bubble lt="1545 2438" rb="1595 2486" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question29">
+    <bubble lt="1292 2508" rb="1342 2558" value="A" />
+    <bubble lt="1377 2509" rb="1426 2558" value="B" />
+    <bubble lt="1459 2509" rb="1509 2558" value="C" />
+    <bubble lt="1544 2510" rb="1595 2559" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question30">
+    <bubble lt="1291 2580" rb="1342 2630" value="A" />
+    <bubble lt="1376 2581" rb="1427 2630" value="B" />
+    <bubble lt="1459 2581" rb="1509 2631" value="C" />
+    <bubble lt="1544 2581" rb="1595 2630" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question31">
+    <bubble lt="1291 2653" rb="1341 2702" value="A" />
+    <bubble lt="1376 2654" rb="1426 2702" value="B" />
+    <bubble lt="1459 2654" rb="1509 2702" value="C" />
+    <bubble lt="1544 2654" rb="1594 2702" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question32">
+    <bubble lt="1291 2725" rb="1341 2774" value="A" />
+    <bubble lt="1376 2726" rb="1426 2774" value="B" />
+    <bubble lt="1459 2726" rb="1509 2775" value="C" />
+    <bubble lt="1544 2726" rb="1594 2775" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question33">
+    <bubble lt="1290 2797" rb="1341 2847" value="A" />
+    <bubble lt="1375 2798" rb="1426 2847" value="B" />
+    <bubble lt="1458 2798" rb="1509 2847" value="C" />
+    <bubble lt="1543 2799" rb="1594 2848" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question34">
+    <bubble lt="1291 2871" rb="1341 2920" value="A" />
+    <bubble lt="1376 2872" rb="1425 2920" value="B" />
+    <bubble lt="1459 2872" rb="1508 2920" value="C" />
+    <bubble lt="1544 2872" rb="1593 2920" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question35">
+    <bubble lt="1290 2943" rb="1341 2992" value="A" />
+    <bubble lt="1375 2944" rb="1425 2992" value="B" />
+    <bubble lt="1458 2944" rb="1508 2992" value="C" />
+    <bubble lt="1543 2944" rb="1593 2993" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question36">
+    <bubble lt="1290 3016" rb="1341 3065" value="A" />
+    <bubble lt="1375 3016" rb="1426 3066" value="B" />
+    <bubble lt="1457 3017" rb="1508 3066" value="C" />
+    <bubble lt="1543 3017" rb="1593 3066" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question37">
+    <bubble lt="1788 2219" rb="1838 2267" value="A" />
+    <bubble lt="1873 2219" rb="1923 2267" value="B" />
+    <bubble lt="1956 2219" rb="2006 2267" value="C" />
+    <bubble lt="2041 2219" rb="2091 2268" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question38">
+    <bubble lt="1788 2294" rb="1838 2342" value="A" />
+    <bubble lt="1873 2294" rb="1923 2342" value="B" />
+    <bubble lt="1956 2294" rb="2006 2342" value="C" />
+    <bubble lt="2041 2294" rb="2091 2343" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question39">
+    <bubble lt="1787 2366" rb="1838 2416" value="A" />
+    <bubble lt="1872 2366" rb="1923 2416" value="B" />
+    <bubble lt="1955 2366" rb="2006 2416" value="C" />
+    <bubble lt="2040 2367" rb="2091 2417" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question40">
+    <bubble lt="1787 2438" rb="1837 2487" value="A" />
+    <bubble lt="1873 2439" rb="1922 2487" value="B" />
+    <bubble lt="1956 2438" rb="2005 2487" value="C" />
+    <bubble lt="2040 2439" rb="2090 2487" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question41">
+    <bubble lt="1787 2510" rb="1837 2559" value="A" />
+    <bubble lt="1872 2510" rb="1922 2559" value="B" />
+    <bubble lt="1955 2510" rb="2005 2559" value="C" />
+    <bubble lt="2040 2511" rb="2090 2560" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question42">
+    <bubble lt="1786 2582" rb="1837 2632" value="A" />
+    <bubble lt="1871 2582" rb="1922 2631" value="B" />
+    <bubble lt="1954 2582" rb="2005 2632" value="C" />
+    <bubble lt="2039 2583" rb="2090 2632" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question43">
+    <bubble lt="1786 2655" rb="1836 2703" value="A" />
+    <bubble lt="1872 2655" rb="1921 2703" value="B" />
+    <bubble lt="1955 2655" rb="2004 2704" value="C" />
+    <bubble lt="2040 2655" rb="2089 2704" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question44">
+    <bubble lt="1785 2727" rb="1836 2776" value="A" />
+    <bubble lt="1871 2727" rb="1921 2776" value="B" />
+    <bubble lt="1954 2727" rb="2004 2776" value="C" />
+    <bubble lt="2039 2728" rb="2089 2776" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question45">
+    <bubble lt="1785 2799" rb="1836 2848" value="A" />
+    <bubble lt="1871 2799" rb="1921 2849" value="B" />
+    <bubble lt="1954 2799" rb="2004 2849" value="C" />
+    <bubble lt="2039 2800" rb="2089 2849" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question46">
+    <bubble lt="1786 2873" rb="1835 2921" value="A" />
+    <bubble lt="1871 2873" rb="1921 2921" value="B" />
+    <bubble lt="1954 2873" rb="2003 2921" value="C" />
+    <bubble lt="2039 2873" rb="2088 2922" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question47">
+    <bubble lt="1785 2945" rb="1835 2993" value="A" />
+    <bubble lt="1870 2945" rb="1920 2993" value="B" />
+    <bubble lt="1953 2945" rb="2003 2994" value="C" />
+    <bubble lt="2039 2945" rb="2088 2994" value="D" />
+  </bubblegroup>
+  <bubblegroup id="Question48">
+    <bubble lt="1785 3017" rb="1836 3066" value="A" />
+    <bubble lt="1870 3018" rb="1921 3067" value="B" />
+    <bubble lt="1953 3018" rb="2004 3067" value="C" />
+    <bubble lt="2039 3018" rb="2089 3067" value="D" />
+  </bubblegroup>
+</customsheet>
