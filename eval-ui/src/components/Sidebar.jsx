@@ -50,7 +50,7 @@ export default function Sidebar() {
             onClick={logout}
             title="Logout"
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="#48b5e9">
               <path d="M10 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H10V19H5V5H10V3Z" />
               <path d="M21 12L16 7V10H9V14H16V17L21 12Z" />
             </svg>
