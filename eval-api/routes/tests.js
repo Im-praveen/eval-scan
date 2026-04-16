@@ -226,31 +226,47 @@ router.get('/:id/export', protect, async (req, res) => {
                 ? sheet.updated_result
                 : rawResult;
 
-            const survey = { responses: [] };
+            const survey = {};
+            const responses = [];
+            const order = (test.blockOrder && test.blockOrder.length > 0) ? test.blockOrder : Object.keys(finalResult);
+            const seenKeys = new Set();
 
-            for (const [key, valObj] of Object.entries(finalResult)) {
+            const addField = (key, valObj) => {
+                if (seenKeys.has(key)) return;
+                seenKeys.add(key);
+
                 const value = (typeof valObj === 'object' && valObj !== null && valObj.value !== undefined)
                     ? String(valObj.value)
                     : String(valObj);
 
                 const qMatch = key.match(/^q(?:uestion)?\s*(\d+)$/i);
-
                 if (qMatch) {
-                    survey.responses.push({
+                    responses.push({
                         questionNo: parseInt(qMatch[1], 10),
                         answer: value
                     });
-                } else if (!['errorMessage', 'image', 'status', 'Side1-image', 'Side1-question'].some(k => key.toLowerCase().includes(k.toLowerCase()))) {
-                    // Map common OMR fields to user requested names
+                } else if (!['errorMessage', 'image', 'status', 'Side1-image', 'Side1-question', 'sheetname', 'filename'].some(k => key.toLowerCase().includes(k.toLowerCase()))) {
                     let finalKey = key;
                     if (key.toLowerCase() === 'rollno' || key.toLowerCase() === 'roll no') finalKey = 'StudentCode';
                     if (key.toLowerCase() === 'class') finalKey = 'Grade';
-
                     survey[finalKey] = value;
+                }
+            };
+
+            // 1. Follow blockOrder first
+            for (const key of order) {
+                if (finalResult[key] !== undefined) {
+                    addField(key, finalResult[key]);
                 }
             }
 
-            survey.responses.sort((a, b) => a.questionNo - b.questionNo);
+            // 2. Add leftovers
+            for (const key of Object.keys(finalResult)) {
+                addField(key, finalResult[key]);
+            }
+
+            // 3. Add responses at the end to ensure it's the last key
+            survey.responses = responses;
             surveys.push(survey);
         }
 
