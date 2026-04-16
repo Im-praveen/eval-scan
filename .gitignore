@@ -9,9 +9,9 @@
 **/.env.production.local
 
 # API build/run artifacts
-eval-api/uploads/
-eval-api/extracted/
-eval-api/results/
+uploads/
+extracted/
+results/
 
 # UI build artifacts
 eval-ui/dist/
