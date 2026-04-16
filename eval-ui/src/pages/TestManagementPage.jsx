@@ -112,6 +112,23 @@ export default function TestManagementPage() {
         }
     };
 
+    const [reevaluatingBatch, setReevaluatingBatch] = useState(null);
+
+    const reevaluateBatch = async (testId, batchId) => {
+        if (!window.confirm('Are you sure? This will delete all current records for this batch and re-extract them from the OMR sheets again.')) return;
+        
+        setReevaluatingBatch(batchId);
+        try {
+            await client.post(`/batches/re-evaluate/${batchId}`);
+            await loadBatches(testId);
+        } catch (e) {
+            console.error(e);
+            alert('Failed to start re-evaluation: ' + (e.response?.data?.error || e.message));
+        } finally {
+            setReevaluatingBatch(null);
+        }
+    };
+
     const deleteBatch = async (testId, batchId) => {
         setConfirmDelete(null);
         setDeletingBatch(batchId);
@@ -248,10 +265,23 @@ export default function TestManagementPage() {
                                                 <td colSpan={6} style={{ padding: 0, background: 'var(--bg-base)' }}>
                                                     <div style={{ padding: '12px 24px 16px', borderTop: '1px solid var(--border)' }}>
                                                         <div style={{
-                                                            fontSize: 11, fontWeight: 700, color: 'var(--text-muted)',
-                                                            marginBottom: 10, letterSpacing: '0.5px', textTransform: 'uppercase'
+                                                            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                                                            marginBottom: 10
                                                         }}>
-                                                            Batches — {test.name}
+                                                            <div style={{
+                                                                fontSize: 11, fontWeight: 700, color: 'var(--text-muted)',
+                                                                letterSpacing: '0.5px', textTransform: 'uppercase'
+                                                            }}>
+                                                                Batches — {test.name}
+                                                            </div>
+                                                            <button 
+                                                                className="btn btn-ghost btn-xs"
+                                                                onClick={() => loadBatches(test._id)}
+                                                                title="Refresh batch status"
+                                                                disabled={batchLoading[test._id]}
+                                                            >
+                                                                {batchLoading[test._id] ? 'Refreshing...' : '🔄 Refresh'}
+                                                            </button>
                                                         </div>
 
                                                         {batchLoading[test._id] ? (
@@ -295,12 +325,46 @@ export default function TestManagementPage() {
                                                                                     : 'badge-muted'
                                                                             }`}>{batch.status}</span>
                                                                         {batch.status === 'completed' && (
-                                                                            <button
-                                                                                id={`view-records-${batch._id}`}
-                                                                                className="btn btn-primary btn-sm"
-                                                                                onClick={() => viewSheets(test._id, batch._id)}
+                                                                            <div style={{ display: 'flex', gap: 6 }}>
+                                                                                <button
+                                                                                    id={`view-records-${batch._id}`}
+                                                                                    className="btn btn-primary btn-sm"
+                                                                                    onClick={() => viewSheets(test._id, batch._id)}
+                                                                                >
+                                                                                    👁 View Records
+                                                                                </button>
+                                                                                <button
+                                                                                    id={`reevaluate-${batch._id}`}
+                                                                                    className="btn btn-secondary btn-sm"
+                                                                                    onClick={() => reevaluateBatch(test._id, batch._id)}
+                                                                                    disabled={reevaluatingBatch === batch._id}
+                                                                                    title="Re-run extraction engine"
+                                                                                >
+                                                                                    {reevaluatingBatch === batch._id ? <span className="spinner spinner-sm" /> : '⚙️ Re-Evaluate'}
+                                                                                </button>
+                                                                            </div>
+                                                                        )}
+                                                                        {batch.status === 'processing' && (
+                                                                             <button
+                                                                                id={`reevaluate-force-${batch._id}`}
+                                                                                className="btn btn-ghost btn-sm"
+                                                                                style={{ color: 'var(--text-muted)', fontSize: 10 }}
+                                                                                onClick={() => reevaluateBatch(test._id, batch._id)}
+                                                                                disabled={reevaluatingBatch === batch._id}
+                                                                                title="Process seems stuck? Click to force re-run."
                                                                             >
-                                                                                👁 View Records
+                                                                                {reevaluatingBatch === batch._id ? '...' : '⚠️ Force Re-run'}
+                                                                            </button>
+                                                                        )}
+                                                                        {batch.status === 'failed' && (
+                                                                             <button
+                                                                                id={`reevaluate-fail-${batch._id}`}
+                                                                                className="btn btn-secondary btn-sm"
+                                                                                onClick={() => reevaluateBatch(test._id, batch._id)}
+                                                                                disabled={reevaluatingBatch === batch._id}
+                                                                                title="Try extraction again"
+                                                                            >
+                                                                                {reevaluatingBatch === batch._id ? <span className="spinner spinner-sm" /> : '🔄 Retry'}
                                                                             </button>
                                                                         )}
                                                                         {confirmDelete === batch._id ? (

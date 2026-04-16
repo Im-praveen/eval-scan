@@ -261,4 +261,77 @@ router.delete('/:batchID', protect, async (req, res) => {
     }
 });
 
+// POST /api/batches/re-evaluate/:batchID – re-evaluate an existing batch
+/**
+ * @swagger
+ * /api/batches/re-evaluate/{batchID}:
+ *   post:
+ *     summary: Re-trigger OMR evaluation for an existing batch (deletes old records)
+ *     tags: [Batches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: batchID
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       202:
+ *         description: Re-evaluation started
+ *       400:
+ *         description: Batch is already being processed
+ *       404:
+ *         description: Batch not found
+ */
+router.post('/re-evaluate/:batchID', protect, async (req, res) => {
+    try {
+        const batch = await TestBatch.findById(req.params.batchID);
+        if (!batch) return res.status(404).json({ error: 'Batch not found' });
+
+        // Allow re-evaluation even if status is 'processing' to recover from stuck states
+
+        // 1. Delete associated SheetRecords (reset data for fresh start)
+        await SheetRecord.deleteMany({ batchID: batch._id });
+
+        // 2. Reset status
+        batch.status = 'processing';
+        batch.errorMessage = '';
+        await batch.save();
+
+        const batchID = batch._id.toString();
+        const testID = batch.testID.toString();
+
+        // 3. Spawn worker
+        const worker = new Worker(path.resolve(__dirname, '../processor.js'), {
+            workerData: {
+                batchID,
+                testID,
+                zipPath: batch.uploadedZipPath,
+                extractedDir: EXTRACTED_DIR,
+                resultsDir: RESULTS_DIR,
+                jarPath: JAR_PATH,
+                templatePath: process.env.TEMPLATE_PATH || ''
+            }
+        });
+
+        worker.on('error', async (err) => {
+            console.error('Worker error:', err);
+            await TestBatch.findByIdAndUpdate(batchID, { status: 'failed', errorMessage: err.message });
+        });
+
+        worker.on('exit', async (code) => {
+            if (code !== 0) {
+                console.error(`Worker exited with code ${code}`);
+                await TestBatch.findByIdAndUpdate(batchID, { status: 'failed', errorMessage: `Exit code ${code}` });
+            }
+        });
+
+        res.status(202).json({ success: true, message: 'Re-evaluation started', batchID });
+    } catch (err) {
+        console.error('Re-evaluate error:', err);
+        res.status(500).json({ error: 'Server error during re-evaluation' });
+    }
+});
+
 module.exports = router;
