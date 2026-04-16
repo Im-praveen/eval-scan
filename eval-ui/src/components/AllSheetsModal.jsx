@@ -3,11 +3,13 @@ import client from '../api/client';
 
 const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
 
-function ResultsPanel({ sheet, test, activeField, onFieldClick }) {
+function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate }) {
     const [editMode, setEditMode] = useState(false);
     const [editVal, setEditVal] = useState('');
     const [saving, setSaving] = useState(false);
     const [localSheet, setLocalSheet] = useState(sheet);
+    const [inlineEditField, setInlineEditField] = useState(null);
+    const [inlineEditValue, setInlineEditValue] = useState('');
 
     useEffect(() => {
         setLocalSheet(sheet);
@@ -38,11 +40,40 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick }) {
             try { parsed = JSON.parse(editVal); } catch { parsed = editVal; }
             const { data } = await client.patch(`/sheets/${localSheet._id}`, { updated_result: parsed });
             setLocalSheet(data);
+            onUpdate?.(data);
             setEditMode(false);
         } catch (e) {
             alert('Save failed: ' + (e.response?.data?.error || e.message));
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleInlineSave = async (field, newVal) => {
+        const currentDisplayVal = (localSheet.updated_result && localSheet.updated_result[field] !== undefined)
+            ? String(localSheet.updated_result[field])
+            : String((typeof sheet.result[field] === 'object' && sheet.result[field] !== null) ? sheet.result[field].value : sheet.result[field]);
+
+        if (newVal === currentDisplayVal) {
+           setInlineEditField(null);
+           return;
+        }
+
+        setSaving(true);
+        try {
+            const currentUpdated = typeof localSheet.updated_result === 'object' ? { ...localSheet.updated_result } : {};
+            currentUpdated[field] = newVal;
+            
+            const { data } = await client.patch(`/sheets/${localSheet._id}`, { 
+                updated_result: currentUpdated 
+            });
+            setLocalSheet(data);
+            onUpdate?.(data);
+        } catch (e) {
+            alert('Save failed: ' + (e.response?.data?.error || e.message));
+        } finally {
+            setSaving(false);
+            setInlineEditField(null);
         }
     };
 
@@ -103,15 +134,49 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick }) {
                                     }}>
                                         {k}
                                     </span>
-                                    <span style={{
-                                        fontWeight: 700,
-                                        color: 'var(--text-primary)',
-                                        background: activeField === k ? 'var(--accent)' : 'var(--accent-dim)',
-                                        padding: '2px 8px',
-                                        borderRadius: 4,
-                                        fontSize: 12,
-                                        transition: 'all 0.1s'
-                                    }}>{(typeof v === 'object' && v !== null && v.value !== undefined) ? String(v.value) : String(v)}</span>
+                                    {inlineEditField === k ? (
+                                        <input
+                                            autoFocus
+                                            className="form-input"
+                                            style={{ 
+                                                width: '100px', 
+                                                fontSize: 12, 
+                                                padding: '2px 8px', 
+                                                height: '24px',
+                                                textAlign: 'right',
+                                                fontWeight: 700
+                                            }}
+                                            value={inlineEditValue}
+                                            onChange={e => setInlineEditValue(e.target.value.replace(/[^a-zA-Z0-9]/g, ''))}
+                                            onBlur={() => handleInlineSave(k, inlineEditValue)}
+                                            onKeyDown={e => e.key === 'Enter' && handleInlineSave(k, inlineEditValue)}
+                                            onClick={e => e.stopPropagation()}
+                                        />
+                                    ) : (
+                                        <span 
+                                            onDoubleClick={(e) => {
+                                                e.stopPropagation();
+                                                setInlineEditField(k);
+                                                const currentVal = (localSheet.updated_result && localSheet.updated_result[k] !== undefined)
+                                                    ? localSheet.updated_result[k]
+                                                    : ((typeof v === 'object' && v !== null && v.value !== undefined) ? String(v.value) : String(v));
+                                                setInlineEditValue(currentVal);
+                                            }}
+                                            style={{
+                                                fontWeight: 700,
+                                                color: 'var(--text-primary)',
+                                                background: activeField === k ? 'var(--accent)' : 'var(--accent-dim)',
+                                                padding: '2px 8px',
+                                                borderRadius: 4,
+                                                fontSize: 12,
+                                                transition: 'all 0.1s'
+                                            }}
+                                        >
+                                            {(localSheet.updated_result && localSheet.updated_result[k] !== undefined)
+                                                ? localSheet.updated_result[k]
+                                                : ((typeof v === 'object' && v !== null && v.value !== undefined) ? String(v.value) : String(v))}
+                                        </span>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -236,6 +301,24 @@ export default function AllSheetsModal({ test, onClose }) {
             clientWidth: img.clientWidth,
             clientHeight: img.clientHeight
         });
+    };
+
+    const refreshMetrics = () => {
+        if (imgRef.current) {
+            setImgMetrics({
+                naturalWidth: imgRef.current.naturalWidth,
+                naturalHeight: imgRef.current.naturalHeight,
+                clientWidth: imgRef.current.clientWidth,
+                clientHeight: imgRef.current.clientHeight
+            });
+        }
+    };
+
+    const handleSheetUpdate = (updatedSheet) => {
+        setSheets(prev => prev.map(s => s._id === updatedSheet._id ? updatedSheet : s));
+        if (selected?._id === updatedSheet._id) {
+            setSelected(updatedSheet);
+        }
     };
 
     const handleDeleteSheet = async () => {
@@ -430,7 +513,11 @@ export default function AllSheetsModal({ test, onClose }) {
                                         sheet={selected} 
                                         test={test} 
                                         activeField={highlightedField}
-                                        onFieldClick={(k) => setHighlightedField(k === highlightedField ? null : k)}
+                                        onFieldClick={(k) => {
+                                            refreshMetrics();
+                                            setHighlightedField(k === highlightedField ? null : k);
+                                        }}
+                                        onUpdate={handleSheetUpdate}
                                     />
                                 )
                                 : (
