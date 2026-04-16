@@ -180,7 +180,6 @@ export default function TestManagementPage() {
                                     <th>#</th>
                                     <th>Test Name</th>
                                     <th>Conduct Date</th>
-                                    <th>Status</th>
                                     <th>Created</th>
                                     <th>Actions</th>
                                 </tr>
@@ -197,11 +196,6 @@ export default function TestManagementPage() {
                                                 </div>
                                             </td>
                                             <td>📅 {formatDate(test.conductDate)}</td>
-                                            <td>
-                                                <span className={`badge ${STATUS_CLASS[test.status] || 'badge-muted'}`}>
-                                                    {test.status}
-                                                </span>
-                                            </td>
                                             <td className="td-muted">{formatDate(test.createdAt)}</td>
                                             <td>
                                                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
