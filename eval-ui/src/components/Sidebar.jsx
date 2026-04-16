@@ -16,7 +16,7 @@ export default function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="sidebar-logo-icon">📋</div>
+        <div className="sidebar-logo-icon"><img src="/favicon.png" alt="EvalScan" style={{ height: 'auto', width: '100%' }} /></div>
         <div className="sidebar-logo-text">
           Eval<span>Scan</span>
         </div>
