@@ -7,7 +7,14 @@ import AllSheetsModal from '../components/AllSheetsModal';
 import PublicLinkModal from '../components/PublicLinkModal';
 
 const formatDate = (d) => d
-    ? new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+    ? new Date(d).toLocaleDateString('en-IN', { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    })
     : '—';
 
 const STATUS_CLASS = {
@@ -353,7 +360,7 @@ export default function TestManagementPage() {
                                                                         padding: '10px 16px'
                                                                     }}>
                                                                         <div style={{ fontWeight: 600, fontSize: 13, minWidth: 70 }}>
-                                                                            Batch {bi + 1}
+                                                                            Batch {batches[test._id].length - bi}
                                                                         </div>
                                                                         <div style={{ flex: 1, fontSize: 11, color: 'var(--text-muted)', fontFamily: 'monospace' }}>
                                                                             {batch._id}
