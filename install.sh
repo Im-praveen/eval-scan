@@ -13,9 +13,18 @@ UI_DIR="$APP_DIR/eval-ui"
 echo "🛠️ Starting Evaluation System Installation..."
 
 # 1. Install Basic System Dependencies
-echo "📦 Installing System Packages (Requires Sudo)..."
+echo "📦 Installing System Packages..."
 sudo apt-get update
-sudo apt-get install -y default-jre nginx nodejs npm curl gnupg
+sudo apt-get install -y curl gnupg ca-certificates
+
+# 1.1 Install Node.js 20 (LTS) from NodeSource
+echo "🟢 Installing Node.js 20..."
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 1.2 Install Other Dependencies
+sudo apt-get install -y default-jre nginx
+sudo systemctl enable nginx
 
 # 2. Install MongoDB (Official Repository - Ubuntu 22.04 Jammy)
 if ! command -v mongod &> /dev/null; then

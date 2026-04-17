@@ -26,11 +26,14 @@ pm2 start ecosystem.config.js --env production
 # 3. Reload Nginx
 echo "⚙️ Reloading Nginx Configuration..."
 if [ -f "$APP_DIR/nginx.conf.template" ]; then
-    echo "   Using nginx.conf.template..."
+    echo "   Cleaning up default site and fixing permissions..."
+    sudo rm -f /etc/nginx/sites-enabled/default
+    sudo chmod -R 755 "$APP_DIR"
+    
     sudo cp "$APP_DIR/nginx.conf.template" /etc/nginx/sites-available/evalscan
     sudo ln -sf /etc/nginx/sites-available/evalscan /etc/nginx/sites-enabled/
     sudo nginx -t
-    sudo systemctl reload nginx
+    sudo systemctl restart nginx
 else
     echo "⚠️ Warning: nginx.conf.template not found. Skipping Nginx reload."
 fi
