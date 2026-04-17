@@ -82,9 +82,9 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div style={{ marginTop: 20, textAlign: 'center', fontSize: 12, color: 'var(--text-muted)' }}>
+        {/* <div style={{ marginTop: 20, textAlign: 'center', fontSize: 12, color: 'var(--text-muted)' }}>
           Default: <code style={{ color: 'var(--accent-light)' }}>admin@eval.com</code> / <code style={{ color: 'var(--accent-light)' }}>Admin@123</code>
-        </div>
+        </div> */}
       </div>
     </div>
   );
