@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('./models/User');
-require('dotenv').config();
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+require('dotenv').config({ path: require('path').resolve(__dirname, envFile) });
 
 const seed = async () => {
     await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/evalscan');

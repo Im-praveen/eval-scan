@@ -3,7 +3,8 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 // Load env vars
-dotenv.config({ path: path.join(__dirname, '.env') });
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env';
+dotenv.config({ path: path.join(__dirname, envFile) });
 
 const UserSchema = new mongoose.Schema({
     name: { type: String, required: true },
