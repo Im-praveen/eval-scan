@@ -19,7 +19,7 @@ function Lightbox({ src, name, onClose }) {
   );
 }
 
-function SheetCard({ sheet, test, apiBase }) {
+function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
   const [lightbox, setLightbox] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editVal, setEditVal] = useState('');
@@ -102,6 +102,13 @@ function SheetCard({ sheet, test, apiBase }) {
         }
       }
     });
+
+    // 4. Duplicate Check
+    const rollVal = (typeof activeResult.RollNo === 'object' && activeResult.RollNo !== null) ? activeResult.RollNo.value : activeResult.RollNo;
+    if (rollVal && (duplicateRolls || []).includes(String(rollVal))) {
+      validationErrors.push({ blockId: 'RollNo', error: 'Duplicate Roll Number detected in batch' });
+      hasSeriousError = true;
+    }
   }
 
   const getFieldError = (blockId) => validationErrors.find(e => e.blockId === blockId);
@@ -295,6 +302,19 @@ export default function SheetViewerPage() {
     s.sheetName.toLowerCase().includes(search.toLowerCase())
   );
 
+  // --- Duplicate Detection ---
+  const rollCounts = {};
+  sheets.forEach(s => {
+    const res = s.is_updated 
+      ? { ...s.result, ...(typeof s.updated_result === 'object' ? s.updated_result : {}) }
+      : s.result;
+    const rollVal = (typeof res?.RollNo === 'object' && res.RollNo !== null) ? res.RollNo.value : res?.RollNo;
+    if (rollVal && String(rollVal).trim() !== '' && rollVal !== '*') {
+      rollCounts[rollVal] = (rollCounts[rollVal] || 0) + 1;
+    }
+  });
+  const duplicateRolls = Object.keys(rollCounts).filter(r => rollCounts[r] > 1);
+
   const handleDeleteBatch = async () => {
     if (deleting) return;
     setDeleting(true);
@@ -377,7 +397,7 @@ export default function SheetViewerPage() {
       ) : (
         <div className="sheets-grid">
           {filtered.map(sheet => (
-            <SheetCard key={sheet._id} sheet={sheet} test={test} apiBase={API_BASE} />
+            <SheetCard key={sheet._id} sheet={sheet} test={test} apiBase={API_BASE} duplicateRolls={duplicateRolls} />
           ))}
         </div>
       )}

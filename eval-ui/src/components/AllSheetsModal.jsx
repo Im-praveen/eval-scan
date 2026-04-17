@@ -3,7 +3,7 @@ import client from '../api/client';
 
 const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
 
-function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate }) {
+function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplicateRolls = [] }) {
     const [editMode, setEditMode] = useState(false);
     const [editVal, setEditVal] = useState('');
     const [saving, setSaving] = useState(false);
@@ -40,6 +40,12 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate }) {
                 }
             }
         });
+
+        // Duplicate Check
+        const rollVal = (typeof activeResult.RollNo === 'object' && activeResult.RollNo !== null) ? activeResult.RollNo.value : activeResult.RollNo;
+        if (rollVal && duplicateRolls.includes(String(rollVal))) {
+            validationErrors.push({ blockId: 'RollNo', type: 'duplicate' });
+        }
     }
 
     let resultEntries = [];
@@ -389,6 +395,19 @@ export default function AllSheetsModal({ test, onClose }) {
         s.sheetName.toLowerCase().includes(search.toLowerCase())
     ).sort((a, b) => a.sheetName.localeCompare(b.sheetName));
 
+    // --- Duplicate Detection ---
+    const rollCounts = {};
+    sheets.forEach(s => {
+        const res = s.is_updated 
+            ? { ...s.result, ...(typeof s.updated_result === 'object' ? s.updated_result : {}) }
+            : s.result;
+        const rollVal = (typeof res?.RollNo === 'object' && res.RollNo !== null) ? res.RollNo.value : res?.RollNo;
+        if (rollVal && String(rollVal).trim() !== '' && rollVal !== '*') {
+            rollCounts[rollVal] = (rollCounts[rollVal] || 0) + 1;
+        }
+    });
+    const duplicateRolls = Object.keys(rollCounts).filter(r => rollCounts[r] > 1);
+
     const groupedObj = {};
     sheets.forEach(s => {
         const bid = (typeof s.batchID === 'object' && s.batchID !== null) 
@@ -540,6 +559,7 @@ export default function AllSheetsModal({ test, onClose }) {
                                                             : s.result;
                                                         const errorFields = [];
                                                         if (res && test.templateMap) {
+                                                            // ... (existing template validation) ...
                                                             Object.entries(test.templateMap).forEach(([bid, def]) => {
                                                                 const val = res[bid];
                                                                 const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
@@ -552,6 +572,17 @@ export default function AllSheetsModal({ test, onClose }) {
                                                                 else if (!val || sVal === '' || sVal === 'undefined') isErr = true;
                                                                 if (isErr) errorFields.push(bid);
                                                             });
+
+                                                            // Duplicate Check
+                                                            const rollVal = (typeof res.RollNo === 'object' && res.RollNo !== null) ? res.RollNo.value : res.RollNo;
+                                                            if (rollVal && duplicateRolls.includes(String(rollVal))) {
+                                                                if (!errorFields.includes('RollNo')) errorFields.push('RollNo (Duplicate)');
+                                                                else {
+                                                                    // Update the existing RollNo entry with a more specific error
+                                                                    const idx = errorFields.indexOf('RollNo');
+                                                                    errorFields[idx] = 'RollNo (Duplicate)';
+                                                                }
+                                                            }
                                                         }
                                                         // Fallback check for '*' in any field not in template
                                                         Object.entries(res || {}).forEach(([bid, val]) => {
