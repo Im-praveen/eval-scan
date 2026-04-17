@@ -16,7 +16,7 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
         setEditMode(false);
     }, [sheet]);
 
-    const activeResult = localSheet.is_updated 
+    const activeResult = localSheet.is_updated
         ? { ...localSheet.result, ...(typeof localSheet.updated_result === 'object' ? localSheet.updated_result : {}) }
         : localSheet.result;
     const validationErrors = [];
@@ -25,7 +25,7 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
             const val = activeResult[blockId];
             const strVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
             const templateDef = test.templateMap[blockId];
-            
+
             if (strVal.includes('*')) {
                 validationErrors.push({ blockId, type: 'symbol' });
             } else if (templateDef) {
@@ -84,17 +84,17 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
             : String((typeof sheet.result[field] === 'object' && sheet.result[field] !== null) ? sheet.result[field].value : sheet.result[field]);
 
         if (newVal === currentDisplayVal) {
-           setInlineEditField(null);
-           return;
+            setInlineEditField(null);
+            return;
         }
 
         setSaving(true);
         try {
             const currentUpdated = typeof localSheet.updated_result === 'object' ? { ...localSheet.updated_result } : {};
             currentUpdated[field] = newVal;
-            
-            const { data } = await client.patch(`/sheets/${localSheet._id}`, { 
-                updated_result: currentUpdated 
+
+            const { data } = await client.patch(`/sheets/${localSheet._id}`, {
+                updated_result: currentUpdated
             });
             setLocalSheet(data);
             onUpdate?.(data);
@@ -156,8 +156,8 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
                     {resultEntries.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                             {resultEntries.map(([k, v]) => (
-                                <div 
-                                    key={k} 
+                                <div
+                                    key={k}
                                     onClick={() => onFieldClick?.(k)}
                                     style={{
                                         display: 'flex',
@@ -173,9 +173,9 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
                                         transition: 'all 0.1s'
                                     }}
                                 >
-                                    <span style={{ 
-                                        color: validationErrors.some(e => e.blockId === k) ? '#ef4444' : (activeField === k ? 'var(--text-primary)' : 'var(--text-secondary)'), 
-                                        fontWeight: activeField === k ? 700 : 500 
+                                    <span style={{
+                                        color: validationErrors.some(e => e.blockId === k) ? '#ef4444' : (activeField === k ? 'var(--text-primary)' : 'var(--text-secondary)'),
+                                        fontWeight: activeField === k ? 700 : 500
                                     }}>
                                         {k}
                                         {validationErrors.some(e => e.blockId === k) && <span style={{ marginLeft: 6 }}>⚠️</span>}
@@ -184,10 +184,10 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
                                         <input
                                             autoFocus
                                             className="form-input"
-                                            style={{ 
-                                                width: '100px', 
-                                                fontSize: 12, 
-                                                padding: '2px 8px', 
+                                            style={{
+                                                width: '100px',
+                                                fontSize: 12,
+                                                padding: '2px 8px',
                                                 height: '24px',
                                                 textAlign: 'right',
                                                 fontWeight: 700
@@ -199,7 +199,7 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
                                             onClick={e => e.stopPropagation()}
                                         />
                                     ) : (
-                                        <span 
+                                        <span
                                             onDoubleClick={(e) => {
                                                 e.stopPropagation();
                                                 setInlineEditField(k);
@@ -253,9 +253,9 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
                             color: 'var(--success)'
                         }}>
                             <div style={{ fontWeight: 600, marginBottom: 4 }}>✓ Override Saved</div>
-                            <pre style={{ 
-                                margin: 0, fontFamily: 'monospace', color: 'var(--text-secondary)', 
-                                whiteSpace: 'pre-wrap', fontSize: 11.5 
+                            <pre style={{
+                                margin: 0, fontFamily: 'monospace', color: 'var(--text-secondary)',
+                                whiteSpace: 'pre-wrap', fontSize: 11.5
                             }}>
                                 {JSON.stringify(localSheet.updated_result, null, 2)}
                             </pre>
@@ -281,7 +281,7 @@ export default function AllSheetsModal({ test, onClose }) {
     const [lightbox, setLightbox] = useState(false);
     const [deletingSheet, setDeletingSheet] = useState(null);
     const [confirmDelete, setConfirmDelete] = useState(false);
-    
+
     // Highlighting state
     const [highlightedField, setHighlightedField] = useState(null);
     const [imgMetrics, setImgMetrics] = useState(null); // { naturalWidth, naturalHeight, clientWidth, clientHeight }
@@ -303,27 +303,27 @@ export default function AllSheetsModal({ test, onClose }) {
                     client.get(`/sheets/by-test/${test._id}`),
                     client.get('/template/structure')
                 ]);
-                
+
                 if (ignore) return;
 
                 const tMap = {};
                 if (Array.isArray(templateRes.data)) {
-                  templateRes.data.forEach(item => {
-                    tMap[item.blockId] = item;
-                  });
+                    templateRes.data.forEach(item => {
+                        tMap[item.blockId] = item;
+                    });
                 }
-                
+
                 setSheets(sheetsRes.data);
                 test.templateMap = tMap; // Inject templateMap into test object for cross-component access
-                
+
                 if (sheetsRes.data.length > 0) setSelected(sheetsRes.data[0]);
             } catch (e) {
                 if (!ignore) {
-                  setError('Failed to load sheets or template.');
+                    setError('Failed to load sheets or template.');
                 }
             } finally {
                 if (!ignore) {
-                  setLoading(false);
+                    setLoading(false);
                 }
             }
         };
@@ -398,7 +398,7 @@ export default function AllSheetsModal({ test, onClose }) {
     // --- Duplicate Detection ---
     const rollCounts = {};
     sheets.forEach(s => {
-        const res = s.is_updated 
+        const res = s.is_updated
             ? { ...s.result, ...(typeof s.updated_result === 'object' ? s.updated_result : {}) }
             : s.result;
         const rollVal = (typeof res?.RollNo === 'object' && res.RollNo !== null) ? res.RollNo.value : res?.RollNo;
@@ -410,10 +410,10 @@ export default function AllSheetsModal({ test, onClose }) {
 
     const groupedObj = {};
     sheets.forEach(s => {
-        const bid = (typeof s.batchID === 'object' && s.batchID !== null) 
-            ? (s.batchID._id || s.batchID).toString() 
+        const bid = (typeof s.batchID === 'object' && s.batchID !== null)
+            ? (s.batchID._id || s.batchID).toString()
             : (s.batchID || 'unbatched').toString();
-        
+
         if (!groupedObj[bid]) groupedObj[bid] = { batch: typeof s.batchID === 'object' ? s.batchID : null, sheets: [] };
         groupedObj[bid].sheets.push(s);
     });
@@ -488,25 +488,43 @@ export default function AllSheetsModal({ test, onClose }) {
                     <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
                         {/* LEFT: Sheet list */}
                         <div style={{
-                            width: 240,
+                            width: 550,
                             borderRight: '1px solid var(--border)',
                             display: 'flex',
                             flexDirection: 'column',
                             background: 'var(--bg-sidebar)',
                             flexShrink: 0
                         }}>
-                            {/* Search */}
-                            <div style={{ padding: '10px 10px 6px' }}>
+                            <div style={{ padding: '0 10px 10px' }}>
                                 <input
                                     className="form-input"
-                                    style={{ fontSize: 12.5, padding: '7px 10px' }}
-                                    placeholder="🔍 Search..."
+                                    style={{ fontSize: 13, padding: '10px 14px' }}
+                                    placeholder="🔍 Search sheets by name..."
                                     value={search}
                                     onChange={e => setSearch(e.target.value)}
                                 />
                             </div>
 
-                            <div style={{ flex: 1, overflowY: 'auto', padding: '4px 6px 10px' }}>
+                            {/* Column Headers */}
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: '1.2fr 70px 1.5fr',
+                                padding: '5px 8px',
+                                fontSize: 11,
+                                fontWeight: 800,
+                                background: 'rgba(0,0,0,0.02)',
+                                borderBottom: '1px solid var(--border)',
+                                color: 'var(--text-muted)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                gap: '5px',
+                            }}>
+                                <div>Sheet Name</div>
+                                <div style={{ textAlign: 'center' }}>Status</div>
+                                <div>Remarks</div>
+                            </div>
+
+                            <div style={{ flex: 1, overflowY: 'auto', padding: '0' }}>
                                 {loading ? (
                                     <div style={{ display: 'flex', justifyContent: 'center', padding: 30 }}>
                                         <span className="spinner spinner-accent" />
@@ -522,100 +540,101 @@ export default function AllSheetsModal({ test, onClose }) {
                                         <div style={{
                                             fontSize: 10, fontWeight: 700, color: 'var(--text-muted)',
                                             textTransform: 'uppercase', letterSpacing: '0.5px',
-                                            padding: '8px 10px 4px', borderBottom: '1px solid var(--border)',
-                                            marginBottom: 6
+                                            padding: '5px 8px 5px',
+                                            background: 'var(--bg-input)',
+                                            borderTop: '1px solid var(--border)',
+                                            borderBottom: '1px solid var(--border)',
+                                            marginBottom: 0
                                         }}>
                                             Batch {batchGroups.length - gIdx}
                                             <span style={{ fontSize: 9, opacity: 0.6, marginLeft: 6, fontWeight: 400 }}>
                                                 {grp.batch?._id ? `...${grp.batch._id.slice(-6)}` : ''}
                                             </span>
                                         </div>
-                                        {[...grp.sheets].sort((a,b) => a.sheetName.localeCompare(b.sheetName)).map(s => (
-                                            <div
-                                                key={s._id}
-                                                onClick={() => setSelected(s)}
-                                                style={{
-                                                    padding: '9px 10px',
-                                                    borderRadius: 7,
-                                                    cursor: 'pointer',
-                                                    marginBottom: 2,
-                                                    background: selected?._id === s._id ? 'var(--accent-dim)' : 'transparent',
-                                                    border: `1px solid ${selected?._id === s._id ? 'var(--border-active)' : 'transparent'}`,
-                                                    transition: 'all 0.15s',
-                                                }}
-                                            >
-                                                <div style={{
-                                                    fontSize: 12.5, fontWeight: 600,
-                                                    color: selected?._id === s._id ? 'var(--accent-light)' : 'var(--text-primary)',
-                                                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
-                                                }}>
-                                                    {s.sheetName}
+                                        {[...grp.sheets].sort((a, b) => a.sheetName.localeCompare(b.sheetName)).map(s => {
+                                            const res = s.is_updated
+                                                ? { ...s.result, ...(typeof s.updated_result === 'object' ? s.updated_result : {}) }
+                                                : s.result;
+
+                                            const errorFields = [];
+                                            if (res && test.templateMap) {
+                                                Object.entries(test.templateMap).forEach(([bid, def]) => {
+                                                    const val = res[bid];
+                                                    const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
+                                                    let isErr = false;
+                                                    if (sVal.includes('*')) isErr = true;
+                                                    else if (def.allowedValues && Array.isArray(def.allowedValues)) {
+                                                        if (!def.allowedValues.includes(sVal)) isErr = true;
+                                                    }
+                                                    else if (def.length !== undefined && sVal.length !== def.length) isErr = true;
+                                                    else if (!val || sVal === '' || sVal === 'undefined') isErr = true;
+                                                    if (isErr) errorFields.push(bid);
+                                                });
+
+                                                const rollVal = (typeof res.RollNo === 'object' && res.RollNo !== null) ? res.RollNo.value : res.RollNo;
+                                                if (rollVal && duplicateRolls.includes(String(rollVal))) {
+                                                    if (!errorFields.includes('RollNo')) errorFields.push('RollNo (Duplicate)');
+                                                    else errorFields[errorFields.indexOf('RollNo')] = 'RollNo (Duplicate)';
+                                                }
+                                            }
+
+                                            Object.entries(res || {}).forEach(([bid, val]) => {
+                                                if (test.templateMap?.[bid]) return;
+                                                const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
+                                                if (sVal.includes('*') && !errorFields.includes(bid)) errorFields.push(bid);
+                                            });
+
+                                            const hasErrors = errorFields.length > 0;
+
+                                            return (
+                                                <div
+                                                    key={s._id}
+                                                    onClick={() => setSelected(s)}
+                                                    style={{
+                                                        display: 'grid',
+                                                        gridTemplateColumns: '1.2fr 70px 1.5fr',
+                                                        padding: '5px 8px',
+                                                        cursor: 'pointer',
+                                                        background: selected?._id === s._id ? 'var(--accent-dim)' : 'transparent',
+                                                        borderBottom: '1px solid var(--border)',
+                                                        transition: 'all 0.1s',
+                                                        alignItems: 'center',
+                                                        gap: 5,
+                                                    }}
+                                                >
+                                                    {/* 1: Sheet Name */}
+                                                    <div style={{ overflow: 'hidden' }}>
+                                                        <div style={{
+                                                            fontSize: 13, fontWeight: 600,
+                                                            color: selected?._id === s._id ? 'var(--accent-light)' : 'var(--text-primary)',
+                                                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                                                        }}>
+                                                            {s.sheetName}
+                                                        </div>
+                                                        {s.is_updated && <div style={{ fontSize: 10, color: 'var(--success)', fontWeight: 600 }}>✓ Reviewed</div>}
+                                                    </div>
+
+                                                    {/* 2: Status */}
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        {hasErrors ? (
+                                                            <span title="Errors present" style={{ fontSize: 18 }}>⚠️</span>
+                                                        ) : (
+                                                            <span title="Correct" style={{ fontSize: 18 }}>✅</span>
+                                                        )}
+                                                    </div>
+
+                                                    {/* 3: Remarks */}
+                                                    <div style={{
+                                                        fontSize: 11.5,
+                                                        color: hasErrors ? '#ef4444' : 'var(--text-muted)',
+                                                        fontWeight: hasErrors ? 600 : 400,
+                                                        lineHeight: '1.4'
+                                                    }}>
+                                                        {hasErrors ? errorFields.join(', ') : 'No errors detected'}
+                                                    </div>
                                                 </div>
-                                                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, display: 'flex', gap: 6, alignItems: 'center' }}>
-                                                    {s.is_updated && <span style={{ color: 'var(--success)' }}>✓ Overridden</span>}
-                                                    {(() => {
-                                                        const res = s.is_updated 
-                                                            ? { ...s.result, ...(typeof s.updated_result === 'object' ? s.updated_result : {}) }
-                                                            : s.result;
-                                                        const errorFields = [];
-                                                        if (res && test.templateMap) {
-                                                            // ... (existing template validation) ...
-                                                            Object.entries(test.templateMap).forEach(([bid, def]) => {
-                                                                const val = res[bid];
-                                                                const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
-                                                                let isErr = false;
-                                                                if (sVal.includes('*')) isErr = true;
-                                                                else if (def.allowedValues && Array.isArray(def.allowedValues)) {
-                                                                    if (!def.allowedValues.includes(sVal)) isErr = true;
-                                                                }
-                                                                else if (def.length !== undefined && sVal.length !== def.length) isErr = true;
-                                                                else if (!val || sVal === '' || sVal === 'undefined') isErr = true;
-                                                                if (isErr) errorFields.push(bid);
-                                                            });
-
-                                                            // Duplicate Check
-                                                            const rollVal = (typeof res.RollNo === 'object' && res.RollNo !== null) ? res.RollNo.value : res.RollNo;
-                                                            if (rollVal && duplicateRolls.includes(String(rollVal))) {
-                                                                if (!errorFields.includes('RollNo')) errorFields.push('RollNo (Duplicate)');
-                                                                else {
-                                                                    // Update the existing RollNo entry with a more specific error
-                                                                    const idx = errorFields.indexOf('RollNo');
-                                                                    errorFields[idx] = 'RollNo (Duplicate)';
-                                                                }
-                                                            }
-                                                        }
-                                                        // Fallback check for '*' in any field not in template
-                                                        Object.entries(res || {}).forEach(([bid, val]) => {
-                                                            if (test.templateMap?.[bid]) return;
-                                                            const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
-                                                            if (sVal.includes('*') && !errorFields.includes(bid)) errorFields.push(bid);
-                                                        });
-
-                                                        if (errorFields.length === 0) return null;
-                                                        
-                                                        const threshold = 2;
-                                                        const isTruncated = errorFields.length > threshold;
-                                                        const displayText = isTruncated 
-                                                            ? `${errorFields.slice(0, threshold).join(', ')}` 
-                                                            : errorFields.join(', ');
-
-                                                        return (
-                                                            <span 
-                                                                style={{ color: '#ef4444', fontWeight: 600, fontSize: 10, display: 'flex', alignItems: 'center', gap: 4 }}
-                                                                title={errorFields.join(', ')}
-                                                            >
-                                                                ⚠️ {displayText}
-                                                                {isTruncated && (
-                                                                    <span style={{ opacity: 0.8 }}>
-                                                                        +{errorFields.length - threshold} more 🔍
-                                                                    </span>
-                                                                )}
-                                                            </span>
-                                                        );
-                                                    })()}
-                                                </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 ))}
                             </div>
@@ -633,10 +652,10 @@ export default function AllSheetsModal({ test, onClose }) {
                         }}>
                             {selected
                                 ? (
-                                    <ResultsPanel 
-                                        key={selected._id} 
-                                        sheet={selected} 
-                                        test={test} 
+                                    <ResultsPanel
+                                        key={selected._id}
+                                        sheet={selected}
+                                        test={test}
                                         activeField={highlightedField}
                                         onFieldClick={(k) => {
                                             refreshMetrics();
@@ -747,13 +766,13 @@ export default function AllSheetsModal({ test, onClose }) {
                                                     (() => {
                                                         const b = selected.result[highlightedField].bounds;
                                                         const { naturalWidth, naturalHeight, clientWidth, clientHeight } = imgMetrics;
-                                                        
+
                                                         // Scaling factors
                                                         const sx = clientWidth / naturalWidth;
                                                         const sy = clientHeight / naturalHeight;
-                                                        
+
                                                         return (
-                                                            <div 
+                                                            <div
                                                                 style={{
                                                                     position: 'absolute',
                                                                     left: b.x * sx,

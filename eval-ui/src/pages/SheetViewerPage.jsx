@@ -30,7 +30,7 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
   const token = localStorage.getItem('eval_token') || '';
   const imgSrc = `${apiBase}/api/sheets/image/${sheet._id}?token=${token}`;
 
-  const activeResult = localSheet.is_updated 
+  const activeResult = localSheet.is_updated
     ? { ...localSheet.result, ...(typeof localSheet.updated_result === 'object' ? localSheet.updated_result : {}) }
     : localSheet.result;
 
@@ -61,10 +61,10 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
   // Calculate entries to show
   let resultEntries = [];
   if (activeResult && typeof activeResult === 'object') {
-    const keys = test && test.blockOrder && test.blockOrder.length > 0 
+    const keys = test && test.blockOrder && test.blockOrder.length > 0
       ? test.blockOrder.filter(k => activeResult[k] !== undefined)
       : Object.keys(activeResult);
-    
+
     resultEntries = keys.map(k => [k, activeResult[k]]);
   }
 
@@ -78,12 +78,12 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
       const val = activeResult[blockId];
       const strVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
       const templateDef = test?.templateMap?.[blockId];
-      
+
       // 1. Check for * (Mandatory for all fields)
       if (strVal.includes('*')) {
         validationErrors.push({ blockId, error: 'Contains * (multiple marks)' });
         hasSeriousError = true;
-      } 
+      }
       // 2. Check for missing value
       else if (!val || strVal === 'undefined' || strVal === '') {
         validationErrors.push({ blockId, error: 'Missing value' });
@@ -117,10 +117,10 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
   return (
     <div className={`sheet-card ${hasSeriousError ? 'has-error' : ''}`}>
       {hasSeriousError && (
-        <div className="error-summary-box" style={{ 
-          fontSize: 10, 
-          padding: '4px 8px', 
-          background: 'rgba(239, 68, 68, 0.1)', 
+        <div className="error-summary-box" style={{
+          fontSize: 10,
+          padding: '4px 8px',
+          background: 'rgba(239, 68, 68, 0.1)',
           color: '#ef4444',
           borderBottom: '1px solid rgba(239, 68, 68, 0.2)',
           fontWeight: 600
@@ -136,7 +136,7 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
         <div className="sheet-img-overlay">
           <span className="sheet-img-overlay-icon">🔍</span>
         </div>
-        
+
         {/* Status Badge Over Image */}
         <div className={`sheet-status-badge ${hasSeriousError ? 'status-red' : 'status-green'}`}>
           {hasSeriousError ? (
@@ -166,7 +166,7 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
             {resultEntries.map(([k, v]) => {
               const fieldError = getFieldError(k);
               const strVal = (typeof v === 'object' && v !== null && v.value !== undefined) ? String(v.value) : String(v);
-              
+
               return (
                 <div className={`result-row ${fieldError ? 'row-error' : ''}`} key={k} title={fieldError?.error}>
                   <span className="result-key">{k}</span>
@@ -190,7 +190,7 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
             background: 'var(--success-dim)',
             border: '1px solid rgba(16,185,129,0.2)',
             borderRadius: 8,
-            padding: '12px 14px',
+            padding: '5px 8px',
             fontSize: 12,
             color: 'var(--success)',
             marginBottom: 12,
@@ -199,11 +199,11 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
             <div style={{ fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
               <span>✓ Review Details Recorded</span>
             </div>
-            <pre style={{ 
-              margin: 0, 
-              fontSize: 11.5, 
-              fontFamily: 'monospace', 
-              whiteSpace: 'pre-wrap', 
+            <pre style={{
+              margin: 0,
+              fontSize: 11.5,
+              fontFamily: 'monospace',
+              whiteSpace: 'pre-wrap',
               color: 'var(--text-secondary)',
               lineHeight: '1.4'
             }}>
@@ -266,7 +266,7 @@ export default function SheetViewerPage() {
           client.get(`/tests/${testId}`),
           client.get('/template/structure')
         ]);
-        
+
         if (ignore) return;
 
         // Convert template structure array to a lookup map
@@ -276,7 +276,7 @@ export default function SheetViewerPage() {
             tMap[item.blockId] = item;
           });
         }
-        
+
         setSheets(sheetsRes.data);
         setTest({ ...testRes.data, templateMap: tMap });
       } catch (e) {
@@ -305,7 +305,7 @@ export default function SheetViewerPage() {
   // --- Duplicate Detection ---
   const rollCounts = {};
   sheets.forEach(s => {
-    const res = s.is_updated 
+    const res = s.is_updated
       ? { ...s.result, ...(typeof s.updated_result === 'object' ? s.updated_result : {}) }
       : s.result;
     const rollVal = (typeof res?.RollNo === 'object' && res.RollNo !== null) ? res.RollNo.value : res?.RollNo;
@@ -358,8 +358,8 @@ export default function SheetViewerPage() {
           {confirmDelete ? (
             <div style={{ display: 'flex', gap: 6, animation: 'fadeIn 0.2s ease' }}>
               <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>Cancel</button>
-              <button 
-                className="btn btn-danger btn-sm" 
+              <button
+                className="btn btn-danger btn-sm"
                 onClick={handleDeleteBatch}
                 disabled={deleting}
                 style={{ background: 'var(--danger)', color: '#fff' }}
@@ -368,8 +368,8 @@ export default function SheetViewerPage() {
               </button>
             </div>
           ) : (
-             <button 
-              className="btn btn-ghost-danger btn-sm" 
+            <button
+              className="btn btn-ghost-danger btn-sm"
               onClick={() => setConfirmDelete(true)}
               style={{ color: 'var(--danger)', padding: '8px 12px' }}
               title="Delete this batch and all records"
