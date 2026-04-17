@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "seed:admin": "node seedAdmin.js"
   },
   "dependencies": {
     "adm-zip": "^0.5.17",
