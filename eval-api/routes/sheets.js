@@ -163,11 +163,17 @@ router.patch('/:sheetRecordID', protect, async (req, res) => {
             {
                 updated_result,
                 is_updated: true,
+                status: true,
+                // Removed errorMessage: '' to preserve original JAR feedback as requested
                 last_modified: new Date()
             },
             { new: true }
         );
         if (!sheet) return res.status(404).json({ error: 'Sheet record not found' });
+        
+        // Populate batchID so Frontend grouping stays stable
+        await sheet.populate('batchID', 'createdAt status');
+        
         res.json(sheet);
     } catch (err) {
         res.status(500).json({ error: 'Server error' });

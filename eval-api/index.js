@@ -12,6 +12,7 @@ const testRoutes = require('./routes/tests');
 const batchRoutes = require('./routes/batches');
 const sheetRoutes = require('./routes/sheets');
 const dashboardRoutes = require('./routes/dashboard');
+const templateRoutes = require('./routes/template');
 const TestBatch = require('./models/TestBatch');
 
 const swaggerUi = require('swagger-ui-express');
@@ -60,6 +61,7 @@ app.use('/api/tests', testRoutes);
 app.use('/api/batches', batchRoutes);
 app.use('/api/sheets', sheetRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/template', templateRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -34,6 +34,14 @@ const SheetRecordSchema = new mongoose.Schema({
     last_modified: {
         type: Date,
         default: Date.now
+    },
+    status: {
+        type: Boolean,
+        default: true
+    },
+    errorMessage: {
+        type: String,
+        default: ''
     }
 }, { timestamps: true });
 

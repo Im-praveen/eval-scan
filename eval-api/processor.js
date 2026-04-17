@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const mongoose = require('mongoose');
 const os = require('os');
+const { XMLParser } = require('fast-xml-parser');
 require('dotenv').config();
 
 // Models
@@ -39,14 +40,14 @@ async function processZip() {
 
         // 2. Run JAR
         const javaPath = process.env.JAVA_PATH || 'java';
-        
+
         // Dynamic Heap Memory: Use 50% of total system memory
         const totalMemMB = Math.floor(os.totalmem() / (1024 * 1024));
         const heapSizeMB = Math.floor(totalMemMB * 0.5);
         const xmxFlag = `-Xmx${heapSizeMB}m`;
 
         console.log(`Starting JAR for batch ${batchID} with heap ${heapSizeMB}MB...`);
-        
+
         const args = [xmxFlag, '-jar', jarPath, templatePath, targetDir];
         const child = spawn(javaPath, args);
 
@@ -88,52 +89,151 @@ async function processZip() {
             // 4. Parse JSON and save SheetRecords to MongoDB
             try {
                 if (!stdoutData.trim()) throw new Error('JAR produced empty output');
-                
+
                 const parsedJson = JSON.parse(stdoutData);
-                
+
                 // Result shape is either { resultData, blockOrder } or array directly
+                const globalError = parsedJson.errorMessage || parsedJson.error || parsedJson.message || '';
                 const resultData = parsedJson.resultData || (Array.isArray(parsedJson) ? parsedJson : []);
                 const blockOrder = parsedJson.blockOrder || [];
+
+                // 4. Build Template Map for validation
+                const tMap = {};
+                try {
+                    if (fs.existsSync(templatePath)) {
+                        const xmlContent = fs.readFileSync(templatePath, 'utf-8');
+                        const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "" });
+                        const jsonObj = parser.parse(xmlContent);
+                        const root = jsonObj.customsheet;
+
+                        if (root) {
+                            const collect = (elements, isGrid) => {
+                                if (!elements) return;
+                                const arr = Array.isArray(elements) ? elements : [elements];
+                                arr.forEach(item => {
+                                    if (isGrid) {
+                                        const groups = item.bubblegroup ? (Array.isArray(item.bubblegroup) ? item.bubblegroup : [item.bubblegroup]) : [];
+                                        tMap[item.id] = { length: groups.length };
+                                    } else if (item.id) {
+                                        const bubbles = item.bubble ? (Array.isArray(item.bubble) ? item.bubble : [item.bubble]) : [];
+                                        const allowed = bubbles.map(b => String(b.value)).filter(v => v !== 'undefined');
+                                        tMap[item.id] = {
+                                            allowedValues: allowed.length > 0 ? allowed : null,
+                                            length: allowed.length > 0 ? allowed[0].length : 1
+                                        };
+                                    }
+                                });
+                            };
+                            collect(root.bubblegrid, true);
+                            collect(root.bubblegroup, false);
+                        }
+                    }
+                } catch (xmlErr) {
+                    console.error('Validation template parse error:', xmlErr);
+                }
+
+                // Function to validate a single result against the template
+                const validate = (res) => {
+                    const errors = [];
+                    if (!res || typeof res !== 'object') return { status: true, msg: '' };
+
+                    Object.keys(res).forEach(bid => {
+                        const val = res[bid];
+                        const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
+                        const def = tMap[bid];
+
+                        if (sVal.includes('*')) {
+                            errors.push(bid);
+                        } else if (def) {
+                            if (def.allowedValues && !def.allowedValues.includes(sVal)) errors.push(bid);
+                            else if (def.length !== undefined && sVal.length !== def.length) errors.push(bid);
+                            else if (!val || sVal === '' || sVal === 'undefined') errors.push(bid);
+                        }
+                    });
+
+                    return {
+                        status: errors.length === 0,
+                        msg: errors.length > 0 ? `Issues in: ${errors.join(', ')}` : ''
+                    };
+                };
 
                 // Store blockOrder in the Test document if it's found
                 if (blockOrder.length > 0) {
                     await Test.findByIdAndUpdate(testID, { blockOrder });
                 }
 
+                // 5. Index images and prepare for two-pass processing
+                const allImages = getAllImages(targetDir).sort((a, b) => a.localeCompare(b));
+                let unconsumed = [...allImages];
                 const sheetRecords = [];
 
+                // Separate results into named and nameless
+                const namedBlocks = [];
+                const namelessBlocks = [];
                 if (Array.isArray(resultData)) {
-                    for (const item of resultData) {
+                    resultData.forEach(item => {
                         let explicitName = null;
-                        if (item['Side1-image']) {
-                            explicitName = path.basename(item['Side1-image']);
-                        }
-                        
-                        const finalName = explicitName || item.sheetName || item.fileName || item.name;
-                        
-                        if (!finalName) {
-                            console.warn('Discarding nameless result block:', item);
-                            continue;
-                        }
+                        if (item['Side1-image']) explicitName = path.basename(item['Side1-image']);
+                        const name = explicitName || item.sheetName || item.fileName || item.name;
+                        if (name) namedBlocks.push({ name, item });
+                        else namelessBlocks.push(item);
+                    });
+                }
 
-                        const sheetName = finalName;
-                        const imagePath = findImagePath(targetDir, sheetName);
-                        sheetRecords.push({
-                            batchID,
-                            testID,
-                            sheetName,
-                            sheetPath: imagePath || path.join(targetDir, sheetName),
-                            result: item.result || {},
-                            updated_result: {},
-                            is_updated: false,
-                            last_modified: new Date(),
-                            status: item.status !== undefined ? item.status : true,
-                            errorMessage: item['Side1-errorMessage'] || item.errorMessage || ''
-                        });
+                // Pass 1: Process blocks that already have a filename
+                for (const { name, item } of namedBlocks) {
+                    const imagePath = findImagePath(targetDir, name);
+                    if (imagePath) {
+                        unconsumed = unconsumed.filter(p => !p.endsWith(name));
                     }
-                } else if (typeof resultData === 'object') {
+
+                    const v = validate(item.result || item);
+                    const jarError = item['Side1-errorMessage'] || item.errorMessage || globalError || '';
+
+                    sheetRecords.push({
+                        batchID,
+                        testID,
+                        sheetName: name,
+                        sheetPath: imagePath || path.join(targetDir, name),
+                        result: item.result || (typeof item === 'object' ? item : {}),
+                        updated_result: {},
+                        is_updated: false,
+                        last_modified: new Date(),
+                        status: jarError ? false : v.status,
+                        errorMessage: jarError // STICK TO JAR MESSAGE AS PER USER REQUEST
+                    });
+                }
+
+                // Pass 2: Process nameless error blocks and map to remaining images
+                for (const item of namelessBlocks) {
+                    if (unconsumed.length === 0) break;
+
+                    const targetPath = unconsumed.shift();
+                    const sheetName = path.basename(targetPath);
+                    const v = validate(item.result || item);
+                    const jarError = item['Side1-errorMessage'] || item.errorMessage || globalError || '';
+
+                    sheetRecords.push({
+                        batchID,
+                        testID,
+                        sheetName,
+                        sheetPath: targetPath,
+                        result: item.result || (typeof item === 'object' ? item : {}),
+                        updated_result: {},
+                        is_updated: false,
+                        last_modified: new Date(),
+                        status: jarError ? false : v.status,
+                        errorMessage: jarError || v.msg || ''
+                    });
+                }
+
+                // Object-based results (Alternative JAR format)
+                if (!Array.isArray(resultData) && typeof resultData === 'object') {
                     for (const [sheetName, result] of Object.entries(resultData)) {
                         const imagePath = findImagePath(targetDir, sheetName);
+                        unconsumed = unconsumed.filter(p => !p.endsWith(sheetName));
+                        const v = validate(result);
+                        const jarError = result['Side1-errorMessage'] || result.errorMessage || globalError || '';
                         sheetRecords.push({
                             batchID,
                             testID,
@@ -142,28 +242,28 @@ async function processZip() {
                             result,
                             updated_result: {},
                             is_updated: false,
-                            last_modified: new Date()
+                            last_modified: new Date(),
+                            status: jarError ? false : v.status,
+                            errorMessage: jarError // STICK TO JAR MESSAGE
                         });
                     }
                 }
 
-                // Scan for missing images
-                const allImages = getAllImages(targetDir);
-                for (const imgPath of allImages) {
+                // 6. Cleanup: Identify images that received no data at all
+                for (const imgPath of unconsumed) {
                     const imgName = path.basename(imgPath);
-                    const alreadyAdded = sheetRecords.find(r => r.sheetName === imgName);
-                    if (!alreadyAdded) {
-                        sheetRecords.push({
-                            batchID,
-                            testID,
-                            sheetName: imgName,
-                            sheetPath: imgPath,
-                            result: {},
-                            updated_result: {},
-                            is_updated: false,
-                            last_modified: new Date()
-                        });
-                    }
+                    sheetRecords.push({
+                        batchID,
+                        testID,
+                        sheetName: imgName,
+                        sheetPath: imgPath,
+                        result: {},
+                        updated_result: {},
+                        is_updated: false,
+                        last_modified: new Date(),
+                        status: false,
+                        errorMessage: 'No OMR data returned for this sheet'
+                    });
                 }
 
                 if (sheetRecords.length > 0) {
@@ -186,9 +286,9 @@ async function processZip() {
                     last_modified: new Date()
                 }));
                 if (sheetRecords.length > 0) await SheetRecord.insertMany(sheetRecords);
-                await TestBatch.findByIdAndUpdate(batchID, { 
+                await TestBatch.findByIdAndUpdate(batchID, {
                     status: 'completed',
-                    errorMessage: `JSON processed with issues: ${parseErr.message}` 
+                    errorMessage: `JSON processed with issues: ${parseErr.message}`
                 });
             }
 
