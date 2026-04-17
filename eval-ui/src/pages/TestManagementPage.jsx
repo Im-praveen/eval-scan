@@ -129,6 +129,24 @@ export default function TestManagementPage() {
         }
     };
 
+    const [deletingTest, setDeletingTest] = useState(null);
+    const [confirmDeleteTest, setConfirmDeleteTest] = useState(null);
+
+    const deleteTest = async (testId) => {
+        setConfirmDeleteTest(null);
+        setDeletingTest(testId);
+        try {
+            await client.delete(`/tests/${testId}`);
+            await fetchTests();
+            if (expandedTest === testId) setExpandedTest(null);
+        } catch (e) {
+            console.error(e);
+            alert('Failed to delete test: ' + (e.response?.data?.error || e.message));
+        } finally {
+            setDeletingTest(null);
+        }
+    };
+
     const deleteBatch = async (testId, batchId) => {
         setConfirmDelete(null);
         setDeletingBatch(batchId);
@@ -255,6 +273,30 @@ export default function TestManagementPage() {
                                                     >
                                                         {exporting === test._id ? <span className="spinner spinner-sm" /> : '📊 Export JSON'}
                                                     </button>
+
+                                                    {/* Delete Test */}
+                                                    {confirmDeleteTest === test._id ? (
+                                                        <button
+                                                            id={`confirm-delete-test-${test._id}`}
+                                                            className="btn btn-danger btn-sm"
+                                                            style={{ animation: 'fadeIn 0.2s ease', background: 'var(--danger)', color: '#fff' }}
+                                                            onClick={(e) => { e.stopPropagation(); deleteTest(test._id); }}
+                                                            disabled={deletingTest === test._id}
+                                                        >
+                                                            {deletingTest === test._id ? <span className="spinner spinner-sm" style={{ width: 14, height: 14 }} /> : ''} Destroy Test Data?
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            id={`delete-test-btn-${test._id}`}
+                                                            className="btn btn-ghost-danger btn-sm"
+                                                            onClick={(e) => { e.stopPropagation(); setConfirmDeleteTest(test._id); }}
+                                                            disabled={deletingTest === test._id}
+                                                            title="Delete test and all its files"
+                                                            style={{ color: 'var(--danger)' }}
+                                                        >
+                                                            🗑️ Delete
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

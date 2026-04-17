@@ -1,8 +1,15 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const fs = require('fs');
+const path = require('path');
 const Test = require('../models/Test');
+const TestBatch = require('../models/TestBatch');
 const SheetRecord = require('../models/SheetRecord');
 const { protect, apiKeyAuth } = require('../middleware/auth');
+
+const UPLOADS_DIR = path.resolve(process.env.UPLOADS_DIR || './uploads');
+const EXTRACTED_DIR = path.resolve(process.env.EXTRACTED_DIR || './extracted');
+const RESULTS_DIR = path.resolve(process.env.RESULTS_DIR || './results');
 
 const router = express.Router();
 
@@ -274,6 +281,77 @@ router.get('/:id/export', protect, async (req, res) => {
     } catch (err) {
         console.error('Export Error:', err);
         res.status(500).json({ error: 'Server error during export' });
+    }
+});
+
+// DELETE /api/tests/:id – delete test and all associated files/records
+/**
+ * @swagger
+ * /api/tests/{id}:
+ *   delete:
+ *     summary: Delete a test and all its batches, records and physical files
+ *     tags: [Tests]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Test deleted successfully
+ *       404:
+ *         description: Test not found
+ */
+router.delete('/:id', protect, async (req, res) => {
+    try {
+        const test = await Test.findById(req.params.id);
+        if (!test) return res.status(404).json({ error: 'Test not found' });
+
+        // 1. Find all batches associated with this test
+        const batches = await TestBatch.find({ testID: test._id });
+
+        // 2. Cleanup each batch
+        for (const batch of batches) {
+            // A. Delete associated SheetRecords
+            await SheetRecord.deleteMany({ batchID: batch._id });
+
+            // B. Delete Extracted Folder
+            try {
+                const extractedFolderPath = path.join(EXTRACTED_DIR, batch._id.toString());
+                if (fs.existsSync(extractedFolderPath)) {
+                    fs.rmSync(extractedFolderPath, { recursive: true, force: true });
+                }
+            } catch (e) { console.warn(`Could not delete extracted folder for batch ${batch._id}:`, e); }
+
+            // C. Delete uploaded zip
+            try {
+                if (batch.uploadedZipPath && fs.existsSync(batch.uploadedZipPath)) {
+                    fs.unlinkSync(batch.uploadedZipPath);
+                }
+            } catch (e) { console.warn(`Could not delete zip for batch ${batch._id}:`, e); }
+
+            // D. Delete the results json
+            try {
+                const resultsFilePath = path.join(RESULTS_DIR, batch._id.toString() + '.json');
+                if (fs.existsSync(resultsFilePath)) {
+                    fs.unlinkSync(resultsFilePath);
+                }
+            } catch (e) { console.warn(`Could not delete results json for batch ${batch._id}:`, e); }
+
+            // E. Delete the TestBatch document
+            await TestBatch.findByIdAndDelete(batch._id);
+        }
+
+        // 3. Delete the Test document
+        await Test.findByIdAndDelete(test._id);
+
+        res.json({ success: true, message: 'Test and all associated records/files deleted' });
+    } catch (err) {
+        console.error('Delete test error:', err);
+        res.status(500).json({ error: 'Server error during test deletion' });
     }
 });
 
