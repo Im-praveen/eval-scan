@@ -4,7 +4,7 @@
 
 server {
     listen 8085;
-    server_name yourdomain.com; # Replace with your actual domain
+    server_name _; # Respond to IP-based requests
 
     # Increase upload limit (for large ZIPs)
     client_max_body_size 200M;
