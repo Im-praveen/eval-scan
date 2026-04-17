@@ -11,8 +11,8 @@ module.exports = {
         NODE_ENV: 'production',
         PORT: 3000
       },
-      error_file: './logs/err.log',
-      out_file: './logs/out.log',
+      error_file: '/evalscan/logs/api-err.log',
+      out_file: '/evalscan/logs/api-out.log',
       log_date_format: 'YYYY-MM-DD HH:mm:ss'
     }
   ]

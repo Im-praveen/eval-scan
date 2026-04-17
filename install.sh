@@ -49,8 +49,8 @@ if ! command -v pm2 &> /dev/null; then
 fi
 
 # 4. Setup Directories
-echo "📂 Creating storage directories..."
-sudo mkdir -p "$APP_DIR/uploads" "$APP_DIR/extracted" "$APP_DIR/results"
+echo "📂 Creating storage and log directories..."
+sudo mkdir -p "$APP_DIR/uploads" "$APP_DIR/extracted" "$APP_DIR/results" "$APP_DIR/logs"
 sudo chown -R $USER:$USER "$APP_DIR"
 
 # 5. Install Application Dependencies
