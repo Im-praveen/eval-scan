@@ -1,7 +1,7 @@
 module.exports = {
   apps: [
     {
-      name: 'evalscan-api',
+      name: 'eval-api',
       script: 'index.js',
       instances: 1,
       autorestart: true,
