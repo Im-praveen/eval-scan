@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import client from '../api/client';
-
-const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
+import client, { API_ROOT } from '../api/client';
 
 function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplicateRolls = [] }) {
     const [editMode, setEditMode] = useState(false);
@@ -425,7 +423,7 @@ export default function AllSheetsModal({ test, onClose }) {
     });
 
     const token = localStorage.getItem('eval_token') || '';
-    const imgSrc = selected ? `${API_BASE}/api/sheets/image/${selected._id}?token=${token}` : '';
+    const imgSrc = selected ? `${API_ROOT}/api/sheets/image/${selected._id}?token=${token}` : '';
 
     return (
         <>

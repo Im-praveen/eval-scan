@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import client from '../api/client';
-
-const API_BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3000';
+import client, { API_ROOT } from '../api/client';
 
 function Lightbox({ src, name, onClose }) {
   useEffect(() => {
@@ -19,7 +17,7 @@ function Lightbox({ src, name, onClose }) {
   );
 }
 
-function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
+function SheetCard({ sheet, test, duplicateRolls = [] }) {
   const [lightbox, setLightbox] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editVal, setEditVal] = useState('');
@@ -28,7 +26,7 @@ function SheetCard({ sheet, test, apiBase, duplicateRolls = [] }) {
   const [localSheet, setLocalSheet] = useState(sheet);
 
   const token = localStorage.getItem('eval_token') || '';
-  const imgSrc = `${apiBase}/api/sheets/image/${sheet._id}?token=${token}`;
+  const imgSrc = `${API_ROOT}/api/sheets/image/${sheet._id}?token=${token}`;
 
   const activeResult = localSheet.is_updated
     ? { ...localSheet.result, ...(typeof localSheet.updated_result === 'object' ? localSheet.updated_result : {}) }
@@ -397,7 +395,7 @@ export default function SheetViewerPage() {
       ) : (
         <div className="sheets-grid">
           {filtered.map(sheet => (
-            <SheetCard key={sheet._id} sheet={sheet} test={test} apiBase={API_BASE} duplicateRolls={duplicateRolls} />
+            <SheetCard key={sheet._id} sheet={sheet} test={test} duplicateRolls={duplicateRolls} />
           ))}
         </div>
       )}
