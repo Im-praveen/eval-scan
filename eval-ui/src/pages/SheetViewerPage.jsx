@@ -82,6 +82,11 @@ function SheetCard({ sheet, test, duplicateRolls = [] }) {
         validationErrors.push({ blockId, error: 'Contains * (multiple marks)' });
         hasSeriousError = true;
       }
+      // 1.5 Check for spaces (invalid in bubbles)
+      else if (strVal.includes(' ')) {
+        validationErrors.push({ blockId, error: 'Contains space (invalid bubble value)' });
+        hasSeriousError = true;
+      }
       // 2. Check for missing value
       else if (!val || strVal === 'undefined' || strVal === '') {
         validationErrors.push({ blockId, error: 'Missing value' });

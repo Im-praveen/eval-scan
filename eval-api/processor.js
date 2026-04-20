@@ -142,7 +142,7 @@ async function processZip() {
                         const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
                         const def = tMap[bid];
 
-                        if (sVal.includes('*')) {
+                        if (sVal.includes('*') || sVal.includes(' ')) {
                             errors.push(bid);
                         } else if (def) {
                             if (def.allowedValues && !def.allowedValues.includes(sVal)) errors.push(bid);
