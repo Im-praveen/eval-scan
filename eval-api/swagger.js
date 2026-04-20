@@ -4,9 +4,9 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'EvalScan API',
+      title: 'eVAL OMR API',
       version: '1.0.0',
-      description: 'API documentation for the EvalScan OMR Evaluation System',
+      description: 'API documentation for the eVAL OMR OMR Evaluation System',
     },
     servers: [
       {

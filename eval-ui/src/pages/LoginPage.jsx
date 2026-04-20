@@ -29,8 +29,10 @@ export default function LoginPage() {
       <div className="login-bg-glow" />
       <div className="login-card">
         <div className="login-logo">
-          <div className="login-logo-icon">📋</div>
-          <h1 className="login-title">Eval<span style={{ color: 'var(--accent-light)' }}>Scan</span></h1>
+          <div className="login-logo-icon">
+            <img src="/favicon.png" alt="eVAL OMR" style={{ height: 'auto', width: '100%' }} />
+          </div>
+          <h1 className="login-title">eVAL<span style={{ color: 'var(--accent-light)' }}>OMR</span></h1>
           <p className="login-subtitle">OMR Sheet Evaluation System</p>
         </div>
 
@@ -48,7 +50,7 @@ export default function LoginPage() {
               className="form-input"
               type="email"
               name="email"
-              placeholder="admin@eval.com"
+              placeholder=""
               value={form.email}
               onChange={handleChange}
               autoComplete="email"
@@ -63,7 +65,7 @@ export default function LoginPage() {
               className="form-input"
               type="password"
               name="password"
-              placeholder="••••••••"
+              placeholder=""
               value={form.password}
               onChange={handleChange}
               autoComplete="current-password"

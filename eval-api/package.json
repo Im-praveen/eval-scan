@@ -1,7 +1,7 @@
 {
   "name": "eval-api",
   "version": "1.0.0",
-  "description": "Eval Scan API - OMR Sheet Processing System",
+  "description": "eVAL OMR API - OMR Sheet Processing System",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

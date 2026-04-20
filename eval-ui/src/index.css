@@ -804,15 +804,11 @@ tbody td {
 }
 
 .login-logo-icon {
-  width: 56px;
-  height: 56px;
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
-  border-radius: var(--radius-md);
+  width: 100px;
+  height: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26px;
-  box-shadow: 0 8px 24px var(--accent-glow);
   margin-bottom: 14px;
 }
 
@@ -1217,7 +1213,7 @@ tbody td {
   font-weight: 700;
   backdrop-filter: blur(8px);
   z-index: 2;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -1261,9 +1257,17 @@ tbody td {
 }
 
 @keyframes pulse-status {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 @keyframes spin {

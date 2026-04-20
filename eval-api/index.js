@@ -26,9 +26,9 @@ connectDB().then(async () => {
     try {
         await TestBatch.updateMany(
             { status: 'processing' },
-            { 
-                status: 'failed', 
-                errorMessage: 'Evaluation interrupted (possible server restart/crash)' 
+            {
+                status: 'failed',
+                errorMessage: 'Evaluation interrupted (possible server restart/crash)'
             }
         );
     } catch (err) {
@@ -90,7 +90,7 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(port, () => {
-    console.log(`\n🚀 Eval Scan API running at http://localhost:${port}`);
+    console.log(`\n🚀 eVAL OMR API running at http://localhost:${port}`);
     console.log(`   Extracted dir : ${EXTRACTED_DIR}`);
     console.log(`   MongoDB       : ${process.env.MONGO_URI || 'mongodb://localhost:27017/evalscan'}\n`);
 });
