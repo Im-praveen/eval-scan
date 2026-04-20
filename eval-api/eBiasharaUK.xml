@@ -1,4 +1,4 @@
-<customsheet id="eBiashara UK" xdpi="300" ydpi="300" bubbleshape="oval" bubblefullness="0.5" thresholding="otsu" dropout="216 255 0 255 0 255">
+<customsheet id="eBiashara UK" w="2481" h="3507" xdpi="300" ydpi="300" bubbleshape="oval" bubblefullness="0.5" thresholding="fixed" threshold="192">
   <guides>
     <guide xy="208.2 303.9" lt="0 0" rb="16 15" shape="oval" h="59" w="58" xedge="left" yedge="top" />
     <guide xy="198.4 3256.1" lt="0 85" rb="15 100" shape="oval" h="58" w="58" xedge="left" yedge="bottom" />
@@ -190,7 +190,7 @@
     <bubble lt="1589 1410" rb="1639 1459" value="P4" />
     <bubble lt="1589 1487" rb="1639 1535" value="P6" />
   </bubblegroup>
-  <bubblegroup id="VersionID">
+  <bubblegroup id="TestBookletCode">
     <bubble lt="1586 1632" rb="1637 1680" value="1" />
     <bubble lt="1586 1705" rb="1636 1753" value="2" />
     <bubble lt="1586 1779" rb="1636 1828" value="3" />
