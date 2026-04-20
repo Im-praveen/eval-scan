@@ -245,6 +245,8 @@ export default function SheetViewerPage() {
   const [search, setSearch] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [reevaluating, setReevaluating] = useState(false);
+  const [confirmReevaluate, setConfirmReevaluate] = useState(false);
 
   const lastFetchRef = useRef(null);
 
@@ -326,6 +328,20 @@ export default function SheetViewerPage() {
     }
   };
 
+  const handleReevaluateBatch = async () => {
+    if (reevaluating) return;
+    setReevaluating(true);
+    try {
+      await client.post(`/batches/re-evaluate/${batchId}`);
+      // Redirect back to test management to see processing progress
+      navigate('/tests');
+    } catch (e) {
+      alert('Re-evaluation failed: ' + (e.response?.data?.error || e.message));
+      setReevaluating(false);
+      setConfirmReevaluate(false);
+    }
+  };
+
   return (
     <div className="sheet-viewer-page">
       <div className="back-row">
@@ -352,6 +368,28 @@ export default function SheetViewerPage() {
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
+
+          {confirmReevaluate ? (
+            <div style={{ display: 'flex', gap: 6, animation: 'fadeIn 0.2s ease' }}>
+              <button className="btn btn-outline btn-sm" onClick={() => setConfirmReevaluate(false)}>Cancel</button>
+              <button
+                className="btn btn-secondary btn-sm"
+                onClick={handleReevaluateBatch}
+                disabled={reevaluating}
+              >
+                {reevaluating ? <span className="spinner spinner-sm" /> : 'Confirm Re-Run?'}
+              </button>
+            </div>
+          ) : (
+            <button
+              className="btn btn-ghost btn-sm"
+              onClick={() => setConfirmReevaluate(true)}
+              style={{ color: 'var(--text-secondary)', padding: '8px 12px' }}
+              title="Re-run extraction engine for this batch"
+            >
+              ⚙️ Re-Evaluate
+            </button>
+          )}
 
           {confirmDelete ? (
             <div style={{ display: 'flex', gap: 6, animation: 'fadeIn 0.2s ease' }}>
