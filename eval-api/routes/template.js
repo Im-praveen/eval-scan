@@ -58,49 +58,41 @@ router.get('/structure', protect, (req, res) => {
             return res.status(500).json({ error: 'Invalid XML structure: <customsheet> root not found' });
         }
 
-        const structure = [];
-
-        // Note: fast-xml-parser doesn't guarantee arrays for single elements unless configured.
-        // We'll handle both single and multiple elements manually for simplicity or use a more robust check.
-        
+        const structureMap = {};
         const processElements = (elements, isGrid = false) => {
             if (!elements) return;
             const array = Array.isArray(elements) ? elements : [elements];
-            
             array.forEach(item => {
                 if (isGrid) {
-                    // It's a bubblegrid
                     const bubbleGroups = item.bubblegroup ? (Array.isArray(item.bubblegroup) ? item.bubblegroup : [item.bubblegroup]) : [];
-                    structure.push({
+                    structureMap[item.id] = {
                         blockId: item.id,
                         length: bubbleGroups.length
-                    });
-                } else {
-                    // Standalone bubblegroup (check if it has id and NOT inside a grid)
-                    // We only process bubblegroups that are direct children of customsheet here
-                    if (item.id) {
-                        const bubbles = item.bubble ? (Array.isArray(item.bubble) ? item.bubble : [item.bubble]) : [];
-                        const allowedValues = bubbles.map(b => String(b.value)).filter(v => v !== 'undefined');
-                        
-                        structure.push({
-                            blockId: item.id,
-                            allowedValues: allowedValues.length > 0 ? allowedValues : null,
-                            length: allowedValues.length > 0 ? allowedValues[0].length : 1
-                        });
-                    }
+                    };
+                } else if (item.id) {
+                    const bubbles = item.bubble ? (Array.isArray(item.bubble) ? item.bubble : [item.bubble]) : [];
+                    const allowedValues = bubbles.map(b => String(b.value)).filter(v => v !== 'undefined');
+                    structureMap[item.id] = {
+                        blockId: item.id,
+                        allowedValues: allowedValues.length > 0 ? allowedValues : null,
+                        length: allowedValues.length > 0 ? allowedValues[0].length : 1
+                    };
                 }
             });
         };
 
-        // Extract bubblegrids
-        if (root.bubblegrid) {
-            processElements(root.bubblegrid, true);
-        }
+        if (root.bubblegrid) processElements(root.bubblegrid, true);
+        if (root.bubblegroup) processElements(root.bubblegroup, false);
 
-        // Extract standalone bubblegroups
-        if (root.bubblegroup) {
-            processElements(root.bubblegroup, false);
-        }
+        // Sequence IDs in visual document order
+        const structure = [];
+        const orderMatches = [...xmlContent.matchAll(/<(?:bubblegrid|bubblegroup)[\s\S]+?id="([^"]+)"/g)];
+        orderMatches.forEach(match => {
+            const id = match[1];
+            if (structureMap[id]) {
+                structure.push(structureMap[id]);
+            }
+        });
 
         res.json(structure);
 

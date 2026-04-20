@@ -99,6 +99,7 @@ async function processZip() {
 
                 // 4. Build Template Map for validation
                 const tMap = {};
+                let inferredBlockOrder = [];
                 try {
                     if (fs.existsSync(templatePath)) {
                         const xmlContent = fs.readFileSync(templatePath, 'utf-8');
@@ -107,7 +108,7 @@ async function processZip() {
                         const root = jsonObj.customsheet;
 
                         if (root) {
-                            const collect = (elements, isGrid) => {
+                            const collectMap = (elements, isGrid) => {
                                 if (!elements) return;
                                 const arr = Array.isArray(elements) ? elements : [elements];
                                 arr.forEach(item => {
@@ -124,8 +125,12 @@ async function processZip() {
                                     }
                                 });
                             };
-                            collect(root.bubblegrid, true);
-                            collect(root.bubblegroup, false);
+                            collectMap(root.bubblegrid, true);
+                            collectMap(root.bubblegroup, false);
+
+                            // Capture visual order
+                            const orderMatches = [...xmlContent.matchAll(/<(?:bubblegrid|bubblegroup)[\s\S]+?id="([^"]+)"/g)];
+                            inferredBlockOrder = orderMatches.map(m => m[1]).filter(id => tMap[id]);
                         }
                     }
                 } catch (xmlErr) {
@@ -157,9 +162,10 @@ async function processZip() {
                     };
                 };
 
-                // Store blockOrder in the Test document if it's found
-                if (blockOrder.length > 0) {
-                    await Test.findByIdAndUpdate(testID, { blockOrder });
+                // Store blockOrder in the Test document if it's found (or inferred as fallback)
+                const finalBlockOrder = blockOrder.length > 0 ? blockOrder : inferredBlockOrder;
+                if (finalBlockOrder.length > 0) {
+                    await Test.findByIdAndUpdate(testID, { blockOrder: finalBlockOrder });
                 }
 
                 // 5. Index images and prepare for two-pass processing

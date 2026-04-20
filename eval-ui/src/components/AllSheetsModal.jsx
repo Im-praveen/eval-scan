@@ -50,7 +50,7 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
     if (activeResult && typeof activeResult === 'object') {
         const keys = test && test.blockOrder && test.blockOrder.length > 0
             ? test.blockOrder.filter(k => activeResult[k] !== undefined)
-            : Object.keys(activeResult);
+            : (test && test.templateOrder ? test.templateOrder.filter(k => activeResult[k] !== undefined) : Object.keys(activeResult));
         resultEntries = keys.map(k => [k, activeResult[k]]);
     }
 
@@ -305,14 +305,17 @@ export default function AllSheetsModal({ test, onClose }) {
                 if (ignore) return;
 
                 const tMap = {};
+                const tOrder = [];
                 if (Array.isArray(templateRes.data)) {
                     templateRes.data.forEach(item => {
                         tMap[item.blockId] = item;
+                        tOrder.push(item.blockId);
                     });
                 }
 
                 setSheets(sheetsRes.data);
                 test.templateMap = tMap; // Inject templateMap into test object for cross-component access
+                test.templateOrder = tOrder; // Inject templateOrder as well
 
                 if (sheetsRes.data.length > 0) setSelected(sheetsRes.data[0]);
             } catch (e) {

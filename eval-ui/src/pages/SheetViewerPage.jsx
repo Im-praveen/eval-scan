@@ -61,7 +61,7 @@ function SheetCard({ sheet, test, duplicateRolls = [] }) {
   if (activeResult && typeof activeResult === 'object') {
     const keys = test && test.blockOrder && test.blockOrder.length > 0
       ? test.blockOrder.filter(k => activeResult[k] !== undefined)
-      : Object.keys(activeResult);
+      : (test && test.templateOrder ? test.templateOrder.filter(k => activeResult[k] !== undefined) : Object.keys(activeResult));
 
     resultEntries = keys.map(k => [k, activeResult[k]]);
   }
@@ -274,16 +274,18 @@ export default function SheetViewerPage() {
 
         if (ignore) return;
 
-        // Convert template structure array to a lookup map
+        // Convert template structure array to a lookup map and capture visual order
         const tMap = {};
+        const tOrder = [];
         if (Array.isArray(templateRes.data)) {
           templateRes.data.forEach(item => {
             tMap[item.blockId] = item;
+            tOrder.push(item.blockId);
           });
         }
 
         setSheets(sheetsRes.data);
-        setTest({ ...testRes.data, templateMap: tMap });
+        setTest({ ...testRes.data, templateMap: tMap, templateOrder: tOrder });
       } catch (e) {
         if (!ignore) {
           setError('Failed to load sheet records or template structure.');
