@@ -229,9 +229,8 @@ router.get('/:id/export', protect, async (req, res) => {
         for (const sheet of sheets) {
             // Priority to updated_result if reviewed, else fallback to raw result
             const rawResult = sheet.result || {};
-            const finalResult = Object.keys(sheet.updated_result || {}).length > 0
-                ? sheet.updated_result
-                : rawResult;
+            // Merge original result with manual overrides to prevent data loss
+            const finalResult = { ...rawResult, ...(sheet.updated_result || {}) };
 
             const survey = {};
             const responses = [];
