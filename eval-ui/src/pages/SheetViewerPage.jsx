@@ -269,7 +269,7 @@ export default function SheetViewerPage() {
         const [sheetsRes, testRes, templateRes] = await Promise.all([
           client.get(`/sheets/${batchId}`),
           client.get(`/tests/${testId}`),
-          client.get('/template/structure')
+          client.get(`/template/structure?testId=${testId}`)
         ]);
 
         if (ignore) return;

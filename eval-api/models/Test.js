@@ -15,6 +15,11 @@ const TestSchema = new mongoose.Schema({
         enum: ['scheduled', 'active', 'completed'],
         default: 'scheduled'
     },
+    templateType: {
+        type: String,
+        enum: ['Bubble', 'LineMark'],
+        default: 'Bubble'
+    },
     blockOrder: {
         type: [String],
         default: []

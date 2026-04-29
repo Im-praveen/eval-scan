@@ -299,7 +299,7 @@ export default function AllSheetsModal({ test, onClose }) {
             try {
                 const [sheetsRes, templateRes] = await Promise.all([
                     client.get(`/sheets/by-test/${test._id}`),
-                    client.get('/template/structure')
+                    client.get(`/template/structure?testId=${test._id}`)
                 ]);
 
                 if (ignore) return;

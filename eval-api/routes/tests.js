@@ -71,7 +71,7 @@ router.get('/public-list', apiKeyAuth, async (req, res) => {
     try {
         const tests = await Test.find({ status: { $ne: 'deleted' } })
             .sort({ createdAt: -1 })
-            .select('name conductDate status');
+            .select('name conductDate status templateType');
 
         const apiKey = process.env.API_KEY || 'evalscan_secret_key_2024';
         const baseUrl = `${req.protocol}://${req.get('host')}`;
@@ -167,10 +167,11 @@ router.post('/', protect, [
     }
 
     try {
-        const { name, conductDate } = req.body;
+        const { name, conductDate, templateType } = req.body;
         const test = await Test.create({
             name,
             conductDate: new Date(conductDate),
+            templateType: templateType || 'Bubble',
             createdBy: req.user._id
         });
         res.status(201).json(test);

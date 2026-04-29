@@ -7,7 +7,7 @@ const today = () => {
 };
 
 export default function CreateTestModal({ onClose, onCreated }) {
-  const [form, setForm] = useState({ name: '', conductDate: today() });
+  const [form, setForm] = useState({ name: '', conductDate: today(), templateType: 'Bubble' });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
@@ -35,7 +35,8 @@ export default function CreateTestModal({ onClose, onCreated }) {
     try {
       const { data } = await client.post('/tests', {
         name: form.name.trim(),
-        conductDate: form.conductDate
+        conductDate: form.conductDate,
+        templateType: form.templateType
       });
       onCreated(data);
       onClose();
@@ -101,6 +102,21 @@ export default function CreateTestModal({ onClose, onCreated }) {
               <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 5 }}>
                 Only today or future dates are allowed
               </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Template Type *</label>
+              <select
+                id="test-template-type"
+                className="form-input"
+                name="templateType"
+                value={form.templateType}
+                onChange={handleChange}
+                style={{ appearance: 'auto' }}
+              >
+                <option value="Bubble">Bubble Template</option>
+                <option value="LineMark">LineMark Template</option>
+              </select>
             </div>
           </div>
 

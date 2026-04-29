@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const { XMLParser } = require('fast-xml-parser');
 const { protect } = require('../middleware/auth');
+const Test = require('../models/Test');
 
 const router = express.Router();
 
@@ -36,21 +37,33 @@ const router = express.Router();
  *                   length:
  *                     type: integer
  */
-router.get('/structure', protect, (req, res) => {
+router.get('/structure', protect, async (req, res) => {
     try {
-        const templatePath = path.resolve(process.env.TEMPLATE_PATH || './eBiasharaUK.xml');
-        
+        let templateType = 'Bubble';
+        if (req.query.testId) {
+            const test = await Test.findById(req.query.testId);
+            if (test && test.templateType) {
+                templateType = test.templateType;
+            }
+        }
+
+        const templatePathStr = templateType === 'LineMark'
+            ? (process.env.LINEMARK_TEMPLATE_PATH || process.env.LINEMARK_TEMPLATE_PATH || '')
+            : (process.env.BUBBLE_TEMPLATE_PATH || process.env.BUBBLE_TEMPLATE_PATH || '');
+
+        const templatePath = path.resolve(templatePathStr || './eBiasharaUK.xml');
+
         if (!fs.existsSync(templatePath)) {
             return res.status(404).json({ error: 'Template file not found at ' + templatePath });
         }
 
         const xmlContent = fs.readFileSync(templatePath, 'utf-8');
-        
+
         const parser = new XMLParser({
             ignoreAttributes: false,
             attributeNamePrefix: ""
         });
-        
+
         const jsonObj = parser.parse(xmlContent);
         const root = jsonObj.customsheet;
 

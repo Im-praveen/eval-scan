@@ -99,6 +99,10 @@ router.post('/upload/:testID', flexAuth, upload.single('file'), async (req, res)
 
         const batchID = batch._id.toString();
 
+        const templatePath = test.templateType === 'LineMark'
+            ? (process.env.LINEMARK_TEMPLATE_PATH || process.env.LINEMARK_TEMPLATE_PATH || '')
+            : (process.env.BUBBLE_TEMPLATE_PATH || process.env.BUBBLE_TEMPLATE_PATH || '');
+
         // Spawn worker
         const worker = new Worker(path.resolve(__dirname, '../processor.js'), {
             workerData: {
@@ -108,7 +112,7 @@ router.post('/upload/:testID', flexAuth, upload.single('file'), async (req, res)
                 extractedDir: EXTRACTED_DIR,
                 resultsDir: RESULTS_DIR,
                 jarPath: JAR_PATH,
-                templatePath: process.env.TEMPLATE_PATH || ''
+                templatePath: templatePath
             }
         });
 
@@ -234,14 +238,14 @@ router.delete('/:batchID', protect, async (req, res) => {
             if (fs.existsSync(extractedFolderPath)) {
                 fs.rmSync(extractedFolderPath, { recursive: true, force: true });
             }
-        } catch(e) { console.warn('Could not delete extracted folder:', e); }
+        } catch (e) { console.warn('Could not delete extracted folder:', e); }
 
         // 3. Delete uploaded zip code if available (resilient)
         try {
             if (batch.uploadedZipPath && fs.existsSync(batch.uploadedZipPath)) {
                 fs.unlinkSync(batch.uploadedZipPath);
             }
-        } catch(e) { console.warn('Could not delete zip:', e); }
+        } catch (e) { console.warn('Could not delete zip:', e); }
 
         // 4. Delete the results json if present (resilient)
         try {
@@ -249,7 +253,7 @@ router.delete('/:batchID', protect, async (req, res) => {
             if (fs.existsSync(resultsFilePath)) {
                 fs.unlinkSync(resultsFilePath);
             }
-        } catch(e) { console.warn('Could not delete results json:', e); }
+        } catch (e) { console.warn('Could not delete results json:', e); }
 
         // 5. Delete batch from DB
         await TestBatch.findByIdAndDelete(batch._id);
@@ -302,6 +306,13 @@ router.post('/re-evaluate/:batchID', protect, async (req, res) => {
         const batchID = batch._id.toString();
         const testID = batch.testID.toString();
 
+        // Populate test to get templateType
+        await batch.populate('testID');
+        const test = batch.testID;
+        const templatePath = test && test.templateType === 'LineMark'
+            ? (process.env.LINEMARK_TEMPLATE_PATH || process.env.LINEMARK_TEMPLATE_PATH || '')
+            : (process.env.BUBBLE_TEMPLATE_PATH || process.env.BUBBLE_TEMPLATE_PATH || '');
+
         // 3. Spawn worker
         const worker = new Worker(path.resolve(__dirname, '../processor.js'), {
             workerData: {
@@ -311,7 +322,7 @@ router.post('/re-evaluate/:batchID', protect, async (req, res) => {
                 extractedDir: EXTRACTED_DIR,
                 resultsDir: RESULTS_DIR,
                 jarPath: JAR_PATH,
-                templatePath: process.env.TEMPLATE_PATH || ''
+                templatePath: templatePath
             }
         });
 
