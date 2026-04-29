@@ -221,6 +221,7 @@ export default function TestManagementPage() {
                                 <tr>
                                     <th>#</th>
                                     <th>Test Name</th>
+                                    <th>Template</th>
                                     <th>Conduct Date</th>
                                     <th>Created</th>
                                     <th>Actions</th>
@@ -236,6 +237,11 @@ export default function TestManagementPage() {
                                                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2, fontFamily: 'monospace' }}>
                                                     {test._id}
                                                 </div>
+                                            </td>
+                                            <td>
+                                                <span className={`badge ${test.templateType === 'LineMark' ? 'badge-info' : 'badge-accent'}`}>
+                                                    {test.templateType || 'Bubble'}
+                                                </span>
                                             </td>
                                             <td>📅 {formatDate(test.conductDate)}</td>
                                             <td className="td-muted">{formatDate(test.createdAt)}</td>
@@ -311,7 +317,7 @@ export default function TestManagementPage() {
                                         {/* Expanded batch rows */}
                                         {expandedTest === test._id && (
                                             <tr key={`${test._id}-batches`}>
-                                                <td colSpan={6} style={{ padding: 0, background: 'var(--bg-base)' }}>
+                                                <td colSpan={7} style={{ padding: 0, background: 'var(--bg-base)' }}>
                                                     <div style={{ padding: '12px 24px 16px', borderTop: '1px solid var(--border)' }}>
                                                         <div style={{
                                                             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
