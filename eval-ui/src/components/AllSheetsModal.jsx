@@ -18,31 +18,33 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
         ? { ...localSheet.result, ...(typeof localSheet.updated_result === 'object' ? localSheet.updated_result : {}) }
         : localSheet.result;
     const validationErrors = [];
-    if (activeResult && typeof activeResult === "object" && test?.templateMap) {
+    if (activeResult && typeof activeResult === "object") {
         Object.keys(activeResult).forEach(blockId => {
             const val = activeResult[blockId];
             const strVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
-            const templateDef = test.templateMap[blockId];
+            const templateDef = test?.templateMap?.[blockId];
 
             if (strVal.includes('*')) {
-                validationErrors.push({ blockId, type: 'symbol' });
+                validationErrors.push({ blockId, type: 'symbol', error: 'Contains * (multiple marks)' });
+            } else if (strVal.includes(' ')) {
+                validationErrors.push({ blockId, type: 'space', error: 'Contains space (invalid bubble value)' });
+            } else if (!val || strVal === 'undefined' || strVal === '') {
+                validationErrors.push({ blockId, type: 'missing', error: 'Missing value' });
             } else if (templateDef) {
                 if (templateDef.allowedValues && Array.isArray(templateDef.allowedValues)) {
                     if (!templateDef.allowedValues.includes(strVal)) {
-                        validationErrors.push({ blockId, type: 'invalid' });
+                        validationErrors.push({ blockId, type: 'invalid', error: `Invalid value` });
                     }
                 } else if (templateDef.length !== undefined && strVal.length !== templateDef.length) {
-                    validationErrors.push({ blockId, type: 'length' });
-                } else if (!val || strVal === 'undefined' || strVal === '') {
-                    validationErrors.push({ blockId, type: 'missing' });
+                    validationErrors.push({ blockId, type: 'length', error: `Length mismatch` });
                 }
             }
         });
 
         // Duplicate Check
         const rollVal = (typeof activeResult.RollNo === 'object' && activeResult.RollNo !== null) ? activeResult.RollNo.value : activeResult.RollNo;
-        if (rollVal && duplicateRolls.includes(String(rollVal))) {
-            validationErrors.push({ blockId: 'RollNo', type: 'duplicate' });
+        if (rollVal && (duplicateRolls || []).includes(String(rollVal))) {
+            validationErrors.push({ blockId: 'RollNo', type: 'duplicate', error: 'Duplicate Roll Number detected in batch' });
         }
     }
 
@@ -171,12 +173,12 @@ function ResultsPanel({ sheet, test, activeField, onFieldClick, onUpdate, duplic
                                         transition: 'all 0.1s'
                                     }}
                                 >
-                                    <span style={{
+                                        <span style={{
                                         color: validationErrors.some(e => e.blockId === k) ? '#ef4444' : (activeField === k ? 'var(--text-primary)' : 'var(--text-secondary)'),
                                         fontWeight: activeField === k ? 700 : 500
                                     }}>
                                         {k}
-                                        {validationErrors.some(e => e.blockId === k) && <span style={{ marginLeft: 6 }}>⚠️</span>}
+                                        {validationErrors.some(e => e.blockId === k) && <span className="error-dot" style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: '#ef4444', marginLeft: 6, verticalAlign: 'middle' }} title={validationErrors.find(e => e.blockId === k)?.error} />}
                                     </span>
                                     {inlineEditField === k ? (
                                         <input
@@ -558,32 +560,32 @@ export default function AllSheetsModal({ test, onClose }) {
                                                 : s.result;
 
                                             const errorFields = [];
-                                            if (res && test.templateMap) {
-                                                Object.entries(test.templateMap).forEach(([bid, def]) => {
-                                                    const val = res[bid];
-                                                    const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
+                                            if (res) {
+                                                Object.keys(res).forEach(blockId => {
+                                                    const val = res[blockId];
+                                                    const strVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
+                                                    const templateDef = test?.templateMap?.[blockId];
+                                                    
                                                     let isErr = false;
-                                                    if (sVal.includes('*')) isErr = true;
-                                                    else if (def.allowedValues && Array.isArray(def.allowedValues)) {
-                                                        if (!def.allowedValues.includes(sVal)) isErr = true;
+                                                    if (strVal.includes('*')) isErr = true;
+                                                    else if (strVal.includes(' ')) isErr = true;
+                                                    else if (!val || strVal === 'undefined' || strVal === '') isErr = true;
+                                                    else if (templateDef) {
+                                                        if (templateDef.allowedValues && Array.isArray(templateDef.allowedValues)) {
+                                                            if (!templateDef.allowedValues.includes(strVal)) isErr = true;
+                                                        } else if (templateDef.length !== undefined && strVal.length !== templateDef.length) {
+                                                            isErr = true;
+                                                        }
                                                     }
-                                                    else if (def.length !== undefined && sVal.length !== def.length) isErr = true;
-                                                    else if (!val || sVal === '' || sVal === 'undefined') isErr = true;
-                                                    if (isErr) errorFields.push(bid);
+                                                    if (isErr) errorFields.push(blockId);
                                                 });
-
+                                                
                                                 const rollVal = (typeof res.RollNo === 'object' && res.RollNo !== null) ? res.RollNo.value : res.RollNo;
-                                                if (rollVal && duplicateRolls.includes(String(rollVal))) {
+                                                if (rollVal && (duplicateRolls || []).includes(String(rollVal))) {
                                                     if (!errorFields.includes('RollNo')) errorFields.push('RollNo (Duplicate)');
                                                     else errorFields[errorFields.indexOf('RollNo')] = 'RollNo (Duplicate)';
                                                 }
                                             }
-
-                                            Object.entries(res || {}).forEach(([bid, val]) => {
-                                                if (test.templateMap?.[bid]) return;
-                                                const sVal = (typeof val === 'object' && val !== null && val.value !== undefined) ? String(val.value) : String(val || '');
-                                                if (sVal.includes('*') && !errorFields.includes(bid)) errorFields.push(bid);
-                                            });
 
                                             const hasErrors = errorFields.length > 0;
 
